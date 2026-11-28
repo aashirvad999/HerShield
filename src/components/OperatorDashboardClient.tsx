@@ -57,7 +57,7 @@ interface UploadStatus {
 }
 
 export function OperatorDashboardClient() {
-  const [sourceType, setSourceType] = useState<string>("sample_aggression");
+  const [sourceType, setSourceType] = useState<string>("webcam");
   const [cameraIndex, setCameraIndex] = useState<number>(0);
   const [cameras, setCameras] = useState<
     Array<{ index: number; label: string; width: number; height: number; active: boolean }>
@@ -85,6 +85,7 @@ export function OperatorDashboardClient() {
   const [busyAction, setBusyAction] = useState<boolean>(false);
   const [actionBanner, setActionBanner] = useState<string | null>(null);
   const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [analysisMode, setAnalysisMode] = useState<"person" | "car_crash">("person");
   const [uploadStatus, setUploadStatus] = useState<UploadStatus | null>(null);
   const [benchmarkResult, setBenchmarkResult] = useState<{
     measuredFps: number;
@@ -194,7 +195,7 @@ export function OperatorDashboardClient() {
             refreshData();
           }
         }
-      } catch {}
+      } catch { }
     }, 1000);
     return () => clearInterval(timer);
   }, [uploadStatus, refreshData]);
@@ -248,6 +249,7 @@ export function OperatorDashboardClient() {
       const fd = new FormData();
       fd.append("file", uploadFile);
       fd.append("areaPresetId", areaPresetId);
+      fd.append("analysisMode", analysisMode);
       const res = await fetch("/api/ai-proxy/video/upload", {
         method: "POST",
         body: fd,
@@ -475,7 +477,7 @@ export function OperatorDashboardClient() {
                   className="w-full rounded-lg border border-[#3D2B35] bg-[#160E1F] px-3 py-2 text-xs text-[#F8F2F7] outline-none focus:border-[#BEA3E4]"
                 >
                   <option value="webcam">
-                    Laptop Webcam (Local OpenCV Capture)
+                    Laptop Webcam
                   </option>
                   <option value="phone_ip">
                     Phone Camera / Network Stream (MJPEG/RTSP)
@@ -701,6 +703,14 @@ export function OperatorDashboardClient() {
               Runs local YOLO11n-pose + ByteTrack on uploaded clips and removes
               raw files after PrivacyShield extraction.
             </p>
+            <select
+              value={analysisMode}
+              onChange={(e) => setAnalysisMode(e.target.value as "person" | "car_crash")}
+              className="w-full rounded-lg border border-[#3D2B35] bg-[#160E1F] px-3 py-2 text-xs text-[#F8F2F7] outline-none focus:border-[#BEA3E4]"
+            >
+              <option value="person">Person Safety Detection</option>
+              <option value="car_crash">Car Crash Detection</option>
+            </select>
             <input
               type="file"
               accept="video/*"

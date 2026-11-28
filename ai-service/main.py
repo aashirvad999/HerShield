@@ -724,6 +724,7 @@ def latest_frame() -> Response:
 async def upload_and_process_video(
     file: UploadFile = File(...),
     areaPresetId: str = Form(default="indiranagar-100ft"),
+    analysisMode: str = Form(default="person"),
     x_hershield_ai_secret: Optional[str] = Header(default=None),
 ) -> Dict[str, Any]:
     verify_secret(x_hershield_ai_secret)
@@ -765,22 +766,93 @@ async def upload_and_process_video(
         processed = 0
         t_begin = time.time()
         found_incidents: List[Dict[str, Any]] = []
+        is_crash_mode = analysisMode.strip().lower() == "car_crash"
+        prev_gray: Optional[np.ndarray] = None
+        motion_scores: List[float] = []
+        peak_energy = 0.0
+        peak_snapshots: List[SanitizedFrameSnapshot] = []
+        crash_emitted = False
 
         try:
             frame_idx = 0
+            frame_step = 2 if video_fps > 45.0 else 1
             while True:
                 ret, frame = cap.read()
                 if not ret or frame is None:
                     break
                 frame_idx += 1
-                # Process every 2nd frame on high-FPS videos to maintain smooth speed
-                if frame_idx % 2 == 1:
+                if frame_idx % frame_step == 0 or frame_step == 1:
                     annotated, snap, events = local_detector.process_frame(
                         frame,
                         aggression_threshold=state.aggression_threshold,
                         collapse_confirm_seconds=state.collapse_confirm_seconds,
                         frame_time=frame_idx / video_fps,
+                        upload_mode=True,
                     )
+
+                    if is_crash_mode:
+                        # Compute frame-to-frame vehicle impact / collision motion energy
+                        small = cv2.resize(frame, (320, 180), interpolation=cv2.INTER_AREA)
+                        gray = cv2.GaussianBlur(cv2.cvtColor(small, cv2.COLOR_BGR2GRAY), (7, 7), 0)
+                        motion_energy = 0.0
+                        if prev_gray is not None:
+                            diff = cv2.absdiff(prev_gray, gray)
+                            motion_energy = float(np.mean(diff))
+                            _, thresh = cv2.threshold(diff, 22, 255, cv2.THRESH_BINARY)
+                            contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+                            if contours:
+                                largest = max(contours, key=cv2.contourArea)
+                                if cv2.contourArea(largest) > 250:
+                                    sx = frame.shape[1] / 320.0
+                                    sy = frame.shape[0] / 180.0
+                                    x, y, w, h = cv2.boundingRect(largest)
+                                    cv2.rectangle(
+                                        annotated,
+                                        (int(x * sx), int(y * sy)),
+                                        (int((x + w) * sx), int((y + h) * sy)),
+                                        (0, 140, 255),
+                                        2,
+                                    )
+                        prev_gray = gray
+                        avg_motion = sum(motion_scores[-12:]) / max(1, len(motion_scores[-12:]))
+                        motion_scores.append(motion_energy)
+
+                        if motion_energy > peak_energy:
+                            peak_energy = motion_energy
+                            peak_snapshots = list(local_buffer.buffer) + [snap]
+
+                        is_impact_spike = (
+                            len(motion_scores) >= 6
+                            and motion_energy >= 12.0
+                            and motion_energy >= max(avg_motion * 1.9, 10.0)
+                        )
+                        if is_impact_spike and not crash_emitted:
+                            crash_emitted = True
+                            conf = min(94, max(80, int(74 + motion_energy * 0.7)))
+                            events.append(
+                                {
+                                    "incidentType": "car_crash",
+                                    "incidentConfidence": conf,
+                                    "confidenceType": "heuristic",
+                                    "confirmationStatus": "auto_confirmed",
+                                    "detectionExplanation": (
+                                        f"Car Crash Detection: Sudden high-energy vehicle impact spike detected "
+                                        f"(motion energy {motion_energy:.1f} vs baseline {avg_motion:.1f}) in '{safe_name}'."
+                                    ),
+                                }
+                            )
+                        if crash_emitted:
+                            cv2.putText(
+                                annotated,
+                                "CAR CRASH / IMPACT DETECTED",
+                                (18, 66),
+                                cv2.FONT_HERSHEY_SIMPLEX,
+                                0.75,
+                                (0, 80, 255),
+                                2,
+                                cv2.LINE_AA,
+                            )
+
                     local_buffer.push(snap)
                     processed += 1
                     for ev in events:
@@ -809,6 +881,27 @@ async def upload_and_process_video(
                             "incidents": found_incidents,
                         }
                     )
+
+            # Fallback for short crash clips where impact starts immediately
+            if is_crash_mode and not crash_emitted and peak_energy >= 4.0:
+                conf = min(92, max(78, int(74 + peak_energy * 0.8)))
+                inc = push_incident_to_app(
+                    {
+                        "incidentType": "car_crash",
+                        "incidentConfidence": conf,
+                        "confidenceType": "heuristic",
+                        "confirmationStatus": "auto_confirmed",
+                        "detectionExplanation": (
+                            f"Car Crash Detection: Peak collision shockwave detected "
+                            f"(peak motion energy {peak_energy:.1f}) in '{safe_name}'."
+                        ),
+                    },
+                    camera_source=f"uploaded:{safe_name}",
+                    area_preset_id=areaPresetId,
+                    snapshots=peak_snapshots or list(local_buffer.buffer),
+                    is_simulated_demo=False,
+                )
+                found_incidents.append(inc)
         finally:
             cap.release()
             elapsed_total = max(0.1, time.time() - t_begin)

@@ -224,6 +224,7 @@ class HerShieldDetector:
         aggression_threshold: Optional[float] = None,
         collapse_confirm_seconds: Optional[float] = None,
         frame_time: Optional[float] = None,
+        upload_mode: bool = False,
     ) -> Tuple[np.ndarray, SanitizedFrameSnapshot, List[Dict[str, Any]]]:
         """
         Runs YOLO11n-pose + ByteTrack on a frame, draws operator overlays,
@@ -253,71 +254,72 @@ class HerShieldDetector:
                 [],
             )
 
-        # Palm cover + uncover toggle: cover & remove palm to disable, cover & remove again to enable
-        if self._is_camera_covered_by_palm(frame):
-            self.palm_clear_frames = 0
-            self.palm_cover_frames += 1
-            if self.palm_cover_frames >= 3:
-                if not self.palm_covered:
-                    self._clear_tracking_state()
-                self.palm_covered = True
-        else:
-            self.palm_cover_frames = 0
-            if self.palm_covered:
-                self.palm_clear_frames += 1
-                if self.palm_clear_frames >= 3:
-                    self.palm_covered = False
-                    self.palm_clear_frames = 0
-                    if (now - self.last_toggle_at) >= 1.0:
-                        self.detection_enabled = not self.detection_enabled
-                        self.last_toggle_at = now
-                        if self.detection_enabled:
-                            self.paused_reason = ""
-                            self.resume_grace_until = now + 1.5
-                        else:
-                            self.paused_reason = "palm"
-                            self._clear_tracking_state()
-
-        if self.palm_covered or not self.detection_enabled or now < self.resume_grace_until:
-            self.palm_cooldown_active = True
-            if self.palm_covered:
-                action_hint = "PAUSE" if self.detection_enabled else "ENABLE"
-                banner = f"PALM DETECTED - Remove palm to {action_hint} detection"
-                snap_label = "Palm Covered"
-            elif not self.detection_enabled:
-                if self.paused_reason == "incident":
-                    banner = "COOLDOWN (Incident Detected) - Show & remove palm to resume"
-                    snap_label = "Cooldown (Incident Detected)"
-                else:
-                    banner = "DETECTION DISABLED - Cover & uncover with palm to enable"
-                    snap_label = "Detection Disabled (Palm Toggle)"
+        if not upload_mode:
+            # Palm cover + uncover toggle: cover & remove palm to disable, cover & remove again to enable
+            if self._is_camera_covered_by_palm(frame):
+                self.palm_clear_frames = 0
+                self.palm_cover_frames += 1
+                if self.palm_cover_frames >= 3:
+                    if not self.palm_covered:
+                        self._clear_tracking_state()
+                    self.palm_covered = True
             else:
-                banner = f"RESUMING DETECTION IN {max(0.0, self.resume_grace_until - now):.1f}s..."
-                snap_label = "Resuming detection"
+                self.palm_cover_frames = 0
+                if self.palm_covered:
+                    self.palm_clear_frames += 1
+                    if self.palm_clear_frames >= 3:
+                        self.palm_covered = False
+                        self.palm_clear_frames = 0
+                        if (now - self.last_toggle_at) >= 1.0:
+                            self.detection_enabled = not self.detection_enabled
+                            self.last_toggle_at = now
+                            if self.detection_enabled:
+                                self.paused_reason = ""
+                                self.resume_grace_until = now + 1.5
+                            else:
+                                self.paused_reason = "palm"
+                                self._clear_tracking_state()
 
-            cv2.rectangle(annotated, (0, 34), (w_img, 70), (35, 18, 52), -1)
-            cv2.putText(
-                annotated,
-                banner,
-                (14, 58),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                0.53,
-                (0, 210, 255),
-                2,
-                cv2.LINE_AA,
-            )
-            return (
-                annotated,
-                SanitizedFrameSnapshot(
-                    timestamp=now,
-                    width=w_img,
-                    height=h_img,
-                    label=snap_label,
-                ),
-                [],
-            )
+            if self.palm_covered or not self.detection_enabled or now < self.resume_grace_until:
+                self.palm_cooldown_active = True
+                if self.palm_covered:
+                    action_hint = "PAUSE" if self.detection_enabled else "ENABLE"
+                    banner = f"PALM DETECTED - Remove palm to {action_hint} detection"
+                    snap_label = "Palm Covered"
+                elif not self.detection_enabled:
+                    if self.paused_reason == "incident":
+                        banner = "COOLDOWN (Incident Detected) - Show & remove palm to resume"
+                        snap_label = "Cooldown (Incident Detected)"
+                    else:
+                        banner = "DETECTION DISABLED - Cover & uncover with palm to enable"
+                        snap_label = "Detection Disabled (Palm Toggle)"
+                else:
+                    banner = f"RESUMING DETECTION IN {max(0.0, self.resume_grace_until - now):.1f}s..."
+                    snap_label = "Resuming detection"
 
-        self.palm_cooldown_active = False
+                cv2.rectangle(annotated, (0, 34), (w_img, 70), (35, 18, 52), -1)
+                cv2.putText(
+                    annotated,
+                    banner,
+                    (14, 58),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.53,
+                    (0, 210, 255),
+                    2,
+                    cv2.LINE_AA,
+                )
+                return (
+                    annotated,
+                    SanitizedFrameSnapshot(
+                        timestamp=now,
+                        width=w_img,
+                        height=h_img,
+                        label=snap_label,
+                    ),
+                    [],
+                )
+
+            self.palm_cooldown_active = False
 
         try:
             results = self.model.track(
@@ -379,6 +381,7 @@ class HerShieldDetector:
             h_img=h_img,
             agg_thresh=agg_thresh,
             collapse_req=collapse_req,
+            upload_mode=upload_mode,
         )
 
     def _extract_pose_features(
@@ -669,6 +672,7 @@ class HerShieldDetector:
         agg_thresh: float,
         annotated: np.ndarray,
         events: List[Dict[str, Any]],
+        upload_mode: bool = False,
     ) -> None:
         """
         Differentiates between chain snatching, slap/facial strike, physical aggression,
@@ -737,18 +741,22 @@ class HerShieldDetector:
 
         # 2. Slap / Facial Strike: impulsive high-velocity wrist strike toward head/face
         pair.slap_window = deque(
-            (item for item in pair.slap_window if (now - item[0]) <= 0.45),
+            (item for item in pair.slap_window if (now - item[0]) <= 0.50),
             maxlen=10,
         )
+        slap_max_dist = 1.30 if upload_mode else 1.05
+        slap_max_dhead = 0.45 if upload_mode else 0.36
+        slap_min_wspeed = 2.05 if upload_mode else 2.85
         slap_candidate: Optional[Tuple[int, int, float, float, float]] = None
         for actor, target, m in directed:
-            head_target_hit = m["dHead"] < 0.36 and (m["dHead"] <= m["dNeck"] + 0.05)
-            if norm_dist < 1.05 and head_target_hit and m["headWSpeed"] >= 2.85:
+            head_target_hit = m["dHead"] < slap_max_dhead and (m["dHead"] <= m["dNeck"] + 0.08)
+            if norm_dist < slap_max_dist and head_target_hit and m["headWSpeed"] >= slap_min_wspeed:
                 pair.slap_window.append((now, actor["trackId"], m["headWSpeed"], m["dHead"], target["headSpeed"]))
+                recoil_ok = target["headSpeed"] >= (0.40 if upload_mode else 0.60)
                 if (
-                    (m["headWSpeed"] >= 3.05 and target["headSpeed"] >= 0.60)
-                    or m["headWSpeed"] >= 3.40
-                    or len(pair.slap_window) >= 3
+                    (m["headWSpeed"] >= (2.20 if upload_mode else 3.05) and recoil_ok)
+                    or m["headWSpeed"] >= (2.55 if upload_mode else 3.40)
+                    or len(pair.slap_window) >= (2 if upload_mode else 3)
                 ):
                     slap_candidate = (
                         actor["trackId"],
@@ -927,6 +935,7 @@ class HerShieldDetector:
         h_img: int,
         agg_thresh: float,
         collapse_req: float,
+        upload_mode: bool = False,
     ) -> Tuple[np.ndarray, SanitizedFrameSnapshot, List[Dict[str, Any]]]:
         boxes_out: List[Dict[str, Any]] = []
         keypoints_out: List[List[List[float]]] = []
@@ -1046,6 +1055,7 @@ class HerShieldDetector:
                         agg_thresh,
                         annotated,
                         events,
+                        upload_mode=upload_mode,
                     )
 
         # Prune stale tracks/pairs unseen for > 5 seconds to prevent unbounded growth
@@ -1082,7 +1092,7 @@ class HerShieldDetector:
             label=label,
             frame_jpeg=raw_jpeg,
         )
-        if events:
+        if events and not upload_mode:
             # Pause detection in cooldown mode after every successful detection until palm is shown
             self.detection_enabled = False
             self.palm_cooldown_active = True

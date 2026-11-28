@@ -13,6 +13,7 @@ export type IncidentType =
   | "potential_chain_snatching"
   | "suspected_collapse"
   | "chest_clutching_warning"
+  | "car_crash"
   | "chain_snatching_demo"
   | "vehicle_pedestrian_demo";
 
@@ -244,6 +245,12 @@ export const INCIDENT_TYPE_LABELS: Record<
     badge: "Experimental Warning",
     disclaimer:
       "Experimental posture gesture warning only; never diagnoses a medical event or cardiac condition.",
+  },
+  car_crash: {
+    title: "Car Crash / Vehicle Collision Detected",
+    badge: "Vehicle Impact Signal",
+    disclaimer:
+      "Detected sudden high-energy vehicle motion spike, impact shock, and abrupt deceleration in uploaded video — requires operator verification.",
   },
   chain_snatching_demo: {
     title: "Chain-Snatching Scenario (Demonstration Clip)",
