@@ -1,0 +1,9 @@
+ai-service/
+storage/
+*.pt
+*.mp4
+*.avi
+*.webm
+.venv/
+__pycache__/
+.env.local
