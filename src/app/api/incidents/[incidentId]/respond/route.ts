@@ -11,7 +11,7 @@ export async function POST(
   request: Request,
   { params }: { params: Promise<{ incidentId: string }> }
 ) {
-  const user = await getSessionUser();
+  const user = await getSessionUser("volunteer");
   if (!user || user.role !== "volunteer") {
     return NextResponse.json(
       { error: "Verified volunteer session required." },

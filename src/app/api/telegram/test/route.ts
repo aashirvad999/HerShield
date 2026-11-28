@@ -8,7 +8,7 @@ import type { VolunteerDoc } from "@/lib/types";
  * through the Vercel serverless function.
  */
 export async function POST() {
-  const user = await getSessionUser();
+  const user = await getSessionUser("admin");
   if (!user || user.role !== "volunteer") {
     return NextResponse.json(
       { error: "Volunteer authentication required." },

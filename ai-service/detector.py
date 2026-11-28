@@ -134,6 +134,13 @@ class HerShieldDetector:
         self.id_manager = DisplayIdManager()
         self.aggression_streak: int = 0
         self.last_aggression_alert_at: float = 0.0
+        self.detection_enabled: bool = True
+        self.palm_covered: bool = False
+        self.palm_cover_frames: int = 0
+        self.palm_clear_frames: int = 0
+        self.last_toggle_at: float = -1e9
+        self.resume_grace_until: float = 0.0
+        self.palm_cooldown_active: bool = False
         self.active_collapse_timer: Dict[str, Any] = {
             "active": False,
             "trackId": None,
@@ -171,7 +178,7 @@ class HerShieldDetector:
             self.model = None
             self.model_error = f"Model load error: {exc}"
 
-    def reset_state(self) -> None:
+    def _clear_tracking_state(self) -> None:
         self.tracks.clear()
         self.pairs.clear()
         self.id_manager.reset()
@@ -184,6 +191,30 @@ class HerShieldDetector:
             "remainingSeconds": COLLAPSE_CONFIRM_SECONDS,
             "requiredSeconds": COLLAPSE_CONFIRM_SECONDS,
         }
+
+    def reset_state(self) -> None:
+        self._clear_tracking_state()
+        self.detection_enabled = True
+        self.palm_covered = False
+        self.palm_cover_frames = 0
+        self.palm_clear_frames = 0
+        self.last_toggle_at = -1e9
+        self.resume_grace_until = 0.0
+        self.palm_cooldown_active = False
+
+    def _is_camera_covered_by_palm(self, frame: np.ndarray) -> bool:
+        """Detects when the camera lens is blacked out or occluded by a palm."""
+        small = cv2.resize(frame, (160, 120), interpolation=cv2.INTER_AREA)
+        gray = cv2.cvtColor(small, cv2.COLOR_BGR2GRAY)
+        mean_luma = float(np.mean(gray))
+        std_luma = float(np.std(gray))
+        if mean_luma < 42.0 and std_luma < 32.0:
+            return True
+        if std_luma < 18.0:
+            lap_var = float(cv2.Laplacian(gray, cv2.CV_64F).var())
+            if lap_var < 25.0:
+                return True
+        return False
 
     def process_frame(
         self,
@@ -219,6 +250,66 @@ class HerShieldDetector:
                 SanitizedFrameSnapshot(timestamp=now, width=w_img, height=h_img, label="Model unavailable"),
                 [],
             )
+
+        # Palm cover + uncover toggle: cover & remove palm to disable, cover & remove again to enable
+        if self._is_camera_covered_by_palm(frame):
+            self.palm_clear_frames = 0
+            self.palm_cover_frames += 1
+            if self.palm_cover_frames >= 3:
+                if not self.palm_covered:
+                    self._clear_tracking_state()
+                self.palm_covered = True
+        else:
+            self.palm_cover_frames = 0
+            if self.palm_covered:
+                self.palm_clear_frames += 1
+                if self.palm_clear_frames >= 3:
+                    self.palm_covered = False
+                    self.palm_clear_frames = 0
+                    if (now - self.last_toggle_at) >= 1.0:
+                        self.detection_enabled = not self.detection_enabled
+                        self.last_toggle_at = now
+                        if self.detection_enabled:
+                            self.resume_grace_until = now + 1.5
+                        else:
+                            self._clear_tracking_state()
+
+        if self.palm_covered or not self.detection_enabled or now < self.resume_grace_until:
+            self.palm_cooldown_active = True
+            if self.palm_covered:
+                action_hint = "PAUSE" if self.detection_enabled else "ENABLE"
+                banner = f"PALM DETECTED - Remove palm to {action_hint} detection"
+                snap_label = "Palm Covered"
+            elif not self.detection_enabled:
+                banner = "DETECTION DISABLED - Cover & uncover with palm to enable"
+                snap_label = "Detection Disabled (Palm Toggle)"
+            else:
+                banner = f"RESUMING DETECTION IN {max(0.0, self.resume_grace_until - now):.1f}s..."
+                snap_label = "Resuming detection"
+
+            cv2.rectangle(annotated, (0, 34), (w_img, 70), (35, 18, 52), -1)
+            cv2.putText(
+                annotated,
+                banner,
+                (14, 58),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.53,
+                (0, 210, 255),
+                2,
+                cv2.LINE_AA,
+            )
+            return (
+                annotated,
+                SanitizedFrameSnapshot(
+                    timestamp=now,
+                    width=w_img,
+                    height=h_img,
+                    label=snap_label,
+                ),
+                [],
+            )
+
+        self.palm_cooldown_active = False
 
         try:
             results = self.model.track(
@@ -271,6 +362,7 @@ class HerShieldDetector:
 
         return self._analyze_detections(
             annotated=annotated,
+            raw_frame=frame,
             xyxy_arr=xyxy_arr,
             ids_arr=ids_arr,
             kps_arr=kps_arr,
@@ -455,10 +547,23 @@ class HerShieldDetector:
             )
             if elapsed >= collapse_req and not hist.collapse_alerted:
                 hist.collapse_alerted = True
+                drop_ratio = max(0.0, min(1.0, 1.0 - (bh / max(1.0, hist.baseline_bh))))
+                collapse_conf = min(
+                    94,
+                    max(
+                        76,
+                        int(
+                            70
+                            + drop_ratio * 18.0
+                            + (8 if pose_horizontal else 0)
+                            + min(6.0, max(0.0, elapsed - collapse_req) * 2.0)
+                        ),
+                    ),
+                )
                 events.append(
                     {
                         "incidentType": "suspected_collapse",
-                        "incidentConfidence": 78,
+                        "incidentConfidence": collapse_conf,
                         "confidenceType": "heuristic",
                         "confirmationStatus": "auto_confirmed",
                         "detectionExplanation": (
@@ -575,7 +680,7 @@ class HerShieldDetector:
 
         # 1. Chain Snatching: rapid reach to neck/upper-chest followed by rapid separation/fleeing
         for actor, target, m in directed:
-            if norm_dist < 1.35 and m["dNeck"] < 0.38 and (m["neckWSpeed"] >= 0.90 or actor["bodySpeed"] >= 0.80):
+            if norm_dist < 1.05 and m["dNeck"] < 0.28 and (m["neckWSpeed"] >= 1.40 or actor["bodySpeed"] >= 1.15):
                 if pair.neck_reach_at is None or (now - pair.neck_reach_at) > 2.2:
                     pair.neck_reach_at = now
                     pair.neck_reach_min_dist = norm_dist
@@ -588,9 +693,10 @@ class HerShieldDetector:
                 dist_gain = norm_dist - pair.neck_reach_min_dist
                 actor_obj = pa if pair.neck_reach_actor == pa["trackId"] else pb
                 flee_speed = actor_obj["bodySpeed"]
-                if (dist_gain >= 0.30 and flee_speed >= 0.70) or (dist_gain >= 0.50 and norm_dist >= 0.95):
-                    if self._can_emit(pair, "potential_chain_snatching", now, 10.0):
-                        conf = min(90, max(68, int(64 + dist_gain * 24 + flee_speed * 8)))
+                if (dist_gain >= 0.45 and flee_speed >= 1.05) or (dist_gain >= 0.70 and norm_dist >= 1.15):
+                    if self._can_emit(pair, "potential_chain_snatching", now, 15.0):
+                        closeness_bonus = max(0.0, min(12.0, (1.05 - min(norm_dist, 1.05)) * 12.0))
+                        conf = min(92, max(62, int(58 + closeness_bonus + dist_gain * 16.0 + flee_speed * 6.0)))
                         self._record_emit(
                             pair,
                             {
@@ -623,18 +729,18 @@ class HerShieldDetector:
 
         # 2. Slap / Facial Strike: impulsive high-velocity wrist strike toward head/face
         pair.slap_window = deque(
-            (item for item in pair.slap_window if (now - item[0]) <= 0.50),
+            (item for item in pair.slap_window if (now - item[0]) <= 0.45),
             maxlen=10,
         )
         slap_candidate: Optional[Tuple[int, int, float, float, float]] = None
         for actor, target, m in directed:
-            head_target_hit = m["dHead"] < 0.44 and (m["dHead"] <= m["dNeck"] + 0.08)
-            if norm_dist < 1.30 and head_target_hit and m["headWSpeed"] >= 2.05:
+            head_target_hit = m["dHead"] < 0.36 and (m["dHead"] <= m["dNeck"] + 0.05)
+            if norm_dist < 1.05 and head_target_hit and m["headWSpeed"] >= 2.85:
                 pair.slap_window.append((now, actor["trackId"], m["headWSpeed"], m["dHead"], target["headSpeed"]))
                 if (
-                    (m["headWSpeed"] >= 2.35 and target["headSpeed"] >= 0.45)
-                    or m["headWSpeed"] >= 2.65
-                    or len(pair.slap_window) >= 2
+                    (m["headWSpeed"] >= 3.05 and target["headSpeed"] >= 0.60)
+                    or m["headWSpeed"] >= 3.40
+                    or len(pair.slap_window) >= 3
                 ):
                     slap_candidate = (
                         actor["trackId"],
@@ -647,11 +753,14 @@ class HerShieldDetector:
         if (
             slap_candidate is not None
             and pair.aggression_streak < 3
-            and (now - pair.last_alert_at.get("potential_chain_snatching", -1e9)) > 2.5
-            and self._can_emit(pair, "potential_slap", now, 8.0)
+            and (now - pair.last_alert_at.get("potential_chain_snatching", -1e9)) > 3.0
+            and self._can_emit(pair, "potential_slap", now, 12.0)
         ):
             a_id, t_id, w_spd, d_head, h_recoil = slap_candidate
-            conf = min(89, max(66, int(60 + min(2.0, w_spd - 1.5) * 12 + (10 if h_recoil >= 0.45 else 0))))
+            vel_bonus = min(18.0, max(0.0, w_spd - 2.6) * 12.0)
+            prox_bonus = max(0.0, (0.36 - min(0.36, d_head)) / 0.36) * 8.0
+            recoil_bonus = min(14.0, h_recoil * 16.0) if h_recoil >= 0.45 else 0.0
+            conf = min(92, max(64, int(56 + vel_bonus + prox_bonus + recoil_bonus)))
             self._record_emit(
                 pair,
                 {
@@ -679,10 +788,10 @@ class HerShieldDetector:
         # 3. Physical Aggression / Brawl: sustained high-energy multi-frame combat
         combined_motion = max(pa["wristSpeed"], pb["wristSpeed"]) * 0.65 + (pa["bodySpeed"] + pb["bodySpeed"]) * 0.35
         pair_score = 0.0
-        if norm_dist < 1.35:
-            proximity_factor = max(0.0, (1.35 - norm_dist) / 1.35)
-            motion_factor = min(1.0, combined_motion / 2.5)
-            pair_score = 0.45 * proximity_factor + 0.55 * motion_factor
+        if norm_dist < 1.15 and combined_motion >= 1.55:
+            proximity_factor = max(0.0, (1.15 - norm_dist) / 1.15)
+            motion_factor = min(1.0, combined_motion / 3.6)
+            pair_score = 0.40 * proximity_factor + 0.60 * motion_factor
 
         if pair_score >= agg_thresh:
             pair.aggression_streak += 1
@@ -690,13 +799,14 @@ class HerShieldDetector:
             pair.aggression_streak = max(0, pair.aggression_streak - 1)
 
         if (
-            pair.aggression_streak >= 4
-            and (now - pair.last_any_alert_at) > 2.5
-            and self._can_emit(pair, "potential_aggression", now, 10.0)
+            pair.aggression_streak >= 8
+            and (now - pair.last_any_alert_at) > 4.0
+            and self._can_emit(pair, "potential_aggression", now, 15.0)
         ):
             pair.aggression_streak = 0
             self.last_aggression_alert_at = now
-            conf_pct = min(89, max(55, int(pair_score * 100)))
+            both_active = pa["wristSpeed"] >= 0.8 and pb["wristSpeed"] >= 0.8
+            conf_pct = min(92, max(60, int(54 + pair_score * 32.0 + (8 if both_active else 0))))
             self._record_emit(
                 pair,
                 {
@@ -722,9 +832,15 @@ class HerShieldDetector:
         # 4. Harassment: sustained unwanted torso/arm grab or intrusive cornering with defensive/retreat cues
         best_d_torso = min(m_ab["dTorso"], m_ba["dTorso"])
         best_torso_wspeed = m_ab["torsoWSpeed"] if m_ab["dTorso"] <= m_ba["dTorso"] else m_ba["torsoWSpeed"]
-        unwanted_grab = (norm_dist < 1.15) and (best_d_torso < 0.42) and (best_torso_wspeed < 1.9)
-        intrusive_cornering = (norm_dist < 0.90) and (
-            pa["defensiveHands"] or pb["defensiveHands"] or pa["bodySpeed"] > 0.20 or pb["bodySpeed"] > 0.20
+        unwanted_grab = (
+            (norm_dist < 0.85)
+            and (best_d_torso < 0.28)
+            and (0.18 <= best_torso_wspeed < 1.8)
+            and (pa["defensiveHands"] or pb["defensiveHands"] or pa["bodySpeed"] > 0.35 or pb["bodySpeed"] > 0.35)
+        )
+        intrusive_cornering = (norm_dist < 0.65) and (
+            (pa["defensiveHands"] or pb["defensiveHands"])
+            and (pa["bodySpeed"] > 0.45 or pb["bodySpeed"] > 0.45)
         )
 
         if unwanted_grab:
@@ -745,16 +861,29 @@ class HerShieldDetector:
         close_dur = (now - pair.close_since) if pair.close_since is not None else 0.0
 
         if (
-            (grab_dur >= 1.2 or close_dur >= 2.2)
-            and (now - pair.last_any_alert_at) > 3.0
-            and self._can_emit(pair, "potential_harassment", now, 12.0)
+            (grab_dur >= 3.0 or close_dur >= 4.0)
+            and (now - pair.last_any_alert_at) > 4.0
+            and self._can_emit(pair, "potential_harassment", now, 20.0)
         ):
             reason = (
                 f"sustained unwanted arm/torso contact ({grab_dur:.1f}s within {best_d_torso:.2f} body-heights)"
-                if grab_dur >= 1.2
+                if grab_dur >= 3.0
                 else f"sustained intrusive proximity/cornering ({close_dur:.1f}s within {norm_dist:.2f} body-heights)"
             )
-            conf_pct = min(84, max(62, int(60 + max(grab_dur * 8.0, close_dur * 5.0))))
+            has_defensive = bool(pa["defensiveHands"] or pb["defensiveHands"])
+            dur_bonus = min(18.0, max(grab_dur * 3.5, close_dur * 2.5))
+            conf_pct = min(
+                88,
+                max(
+                    60,
+                    int(
+                        56
+                        + dur_bonus
+                        + (10 if has_defensive else 0)
+                        + (6 if norm_dist < 0.60 else 0)
+                    ),
+                ),
+            )
             self._record_emit(
                 pair,
                 {
@@ -781,6 +910,7 @@ class HerShieldDetector:
     def _analyze_detections(
         self,
         annotated: np.ndarray,
+        raw_frame: np.ndarray,
         xyxy_arr: Any,
         ids_arr: List[int],
         kps_arr: Any,
@@ -842,10 +972,12 @@ class HerShieldDetector:
 
             if pose["chestClutch"]:
                 hist.chest_clutch_alerted = True
+                hold_dur = (now - hist.chest_clutch_since) if hist.chest_clutch_since is not None else 1.8
+                clutch_conf = min(58, max(45, int(44 + hold_dur * 3.0)))
                 events.append(
                     {
                         "incidentType": "chest_clutching_warning",
-                        "incidentConfidence": 48,
+                        "incidentConfidence": clutch_conf,
                         "confidenceType": "heuristic",
                         "confirmationStatus": "pending_timer",
                         "detectionExplanation": (
@@ -923,6 +1055,16 @@ class HerShieldDetector:
             if events
             else f"Tracking {len(person_states)} person(s)"
         )
+        # Encode clean raw frame (without operator vector overlays) for face-blurred volunteer preview
+        raw_jpeg: Optional[bytes] = None
+        preview_src = raw_frame
+        if w_img > 640:
+            new_h = max(1, int(h_img * (640.0 / w_img)))
+            preview_src = cv2.resize(raw_frame, (640, new_h), interpolation=cv2.INTER_AREA)
+        ok_raw, raw_buf = cv2.imencode(".jpg", preview_src, [cv2.IMWRITE_JPEG_QUALITY, 72])
+        if ok_raw:
+            raw_jpeg = raw_buf.tobytes()
+
         snapshot = SanitizedFrameSnapshot(
             timestamp=now,
             width=w_img,
@@ -930,5 +1072,6 @@ class HerShieldDetector:
             boxes=boxes_out,
             keypoints_list=keypoints_out,
             label=label,
+            frame_jpeg=raw_jpeg,
         )
         return annotated, snapshot, events

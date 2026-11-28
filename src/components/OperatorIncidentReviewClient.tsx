@@ -133,7 +133,7 @@ export function OperatorIncidentReviewClient({
 
   if (!incident) {
     return (
-      <div className="rounded-xl border border-[#3D2B35] bg-[#211829] p-8 text-sm text-[#A99CAF]">
+      <div className="rounded-xl border border-[#F3D5E5] bg-white p-8 text-sm text-[#7A566E]">
         Loading incident review details…
       </div>
     );
@@ -146,7 +146,7 @@ export function OperatorIncidentReviewClient({
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Link
           href="/operator"
-          className="inline-flex items-center gap-1.5 text-sm font-medium text-[#BEA3E4] hover:text-[#FFAEDA]"
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-[#DB2777] hover:text-[#DB2777]"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to Live Monitoring
@@ -161,7 +161,7 @@ export function OperatorIncidentReviewClient({
       </div>
 
       {incident.autoDispatched && (
-        <div className="rounded-xl border border-[#D946A8]/40 bg-[#38203F] px-4 py-3 text-xs font-medium text-[#FFAEDA]">
+        <div className="rounded-xl border border-[#D946A8]/40 bg-[#FCE7F3] px-4 py-3 text-xs font-medium text-[#DB2777]">
           <strong>High-Risk Auto-Dispatch Triggered:</strong>{" "}
           {incident.autoDispatchNote ||
             `Risk score (${incident.incidentConfidence}%) exceeded 75%, so verified nearby volunteers were notified automatically.`}
@@ -169,46 +169,46 @@ export function OperatorIncidentReviewClient({
       )}
 
       {feedback && (
-        <div className="rounded-xl border border-[#3D2B35] bg-[#38203F] px-4 py-3 text-xs font-medium text-[#EDDCFF]">
+        <div className="rounded-xl border border-[#F3D5E5] bg-[#FCE7F3] px-4 py-3 text-xs font-medium text-[#2B1324]">
           {feedback}
         </div>
       )}
 
       <div className="grid gap-6 lg:grid-cols-12">
         <div className="space-y-5 lg:col-span-7">
-          <div className="rounded-xl border border-[#3D2B35] bg-[#211829] p-6 space-y-4">
+          <div className="rounded-xl border border-[#F3D5E5] bg-white p-6 space-y-4">
             <div>
-              <div className="font-mono text-xs text-[#BEA3E4]">
+              <div className="font-mono text-xs text-[#DB2777]">
                 {incident.incidentId} • Source: {incident.cameraSource}
               </div>
-              <h2 className="mt-1 font-heading text-2xl font-semibold text-[#F8F2F7]">
+              <h2 className="mt-1 font-heading text-2xl font-semibold text-[#2B1324]">
                 {incident.incidentTitle}
               </h2>
-              <p className="mt-2 text-sm text-[#A99CAF]">
+              <p className="mt-2 text-sm text-[#7A566E]">
                 {incident.detectionExplanation}
               </p>
-              <p className="mt-2 rounded-lg bg-[#241C2E] p-3 text-xs text-[#A99CAF] border border-[#3D2B35]">
-                <strong className="text-[#F8F2F7]">Limitation Note:</strong>{" "}
+              <p className="mt-2 rounded-lg bg-[#FFF7FA] p-3 text-xs text-[#7A566E] border border-[#F3D5E5]">
+                <strong className="text-[#2B1324]">Limitation Note:</strong>{" "}
                 {meta?.disclaimer}
               </p>
             </div>
 
             <div className="grid gap-3 sm:grid-cols-3 text-xs">
-              <div className="rounded-lg bg-[#241C2E] border border-[#3D2B35] p-3">
-                <div className="text-[#A99CAF]">Detected At</div>
+              <div className="rounded-lg bg-[#FFF7FA] border border-[#F3D5E5] p-3">
+                <div className="text-[#7A566E]">Detected At</div>
                 <div className="mt-0.5 font-medium tabular-nums">
                   {new Date(incident.detectedAt).toLocaleString()}
                 </div>
               </div>
-              <div className="rounded-lg bg-[#241C2E] border border-[#3D2B35] p-3">
-                <div className="text-[#A99CAF]">Location</div>
+              <div className="rounded-lg bg-[#FFF7FA] border border-[#F3D5E5] p-3">
+                <div className="text-[#7A566E]">Location</div>
                 <div className="mt-0.5 font-medium">
                   {incident.incidentLocation.areaName}
                 </div>
               </div>
-              <div className="rounded-lg bg-[#241C2E] border border-[#3D2B35] p-3">
-                <div className="text-[#A99CAF]">Confirmation</div>
-                <div className="mt-0.5 font-medium uppercase text-[#BEA3E4]">
+              <div className="rounded-lg bg-[#FFF7FA] border border-[#F3D5E5] p-3">
+                <div className="text-[#7A566E]">Confirmation</div>
+                <div className="mt-0.5 font-medium uppercase text-[#DB2777]">
                   {incident.confirmationStatus.replace("_", " ")}
                 </div>
               </div>
@@ -219,7 +219,7 @@ export function OperatorIncidentReviewClient({
                 type="button"
                 disabled={busy}
                 onClick={() => handleAction("confirm")}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-[#005236] px-4 py-2 text-xs font-semibold text-[#6FFBBE] hover:bg-[#006b47] cursor-pointer"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-50 px-4 py-2 text-xs font-semibold text-emerald-700 hover:bg-[#006b47] cursor-pointer"
               >
                 <CheckCircle2 className="h-4 w-4" />
                 Confirm Incident
@@ -228,7 +228,7 @@ export function OperatorIncidentReviewClient({
                 type="button"
                 disabled={busy || eligible.length === 0}
                 onClick={() => setConfirmDispatchModal(true)}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-[#D946A8] px-4 py-2 text-xs font-semibold text-white hover:bg-[#c13592] disabled:opacity-50 cursor-pointer"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-[#DB2777] px-4 py-2 text-xs font-semibold text-white hover:bg-[#BE185D] disabled:opacity-50 cursor-pointer"
               >
                 <Send className="h-4 w-4" />
                 Dispatch Volunteer Alert ({selectedVolIds.length})
@@ -237,7 +237,7 @@ export function OperatorIncidentReviewClient({
                 type="button"
                 disabled={busy}
                 onClick={() => handleAction("false_positive")}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-[#93000A] px-4 py-2 text-xs font-semibold text-[#FFDAD6] hover:bg-[#b0000d] cursor-pointer"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-rose-50 px-4 py-2 text-xs font-semibold text-rose-700 hover:bg-[#b0000d] cursor-pointer"
               >
                 <XCircle className="h-4 w-4" />
                 Mark False Positive
@@ -246,7 +246,7 @@ export function OperatorIncidentReviewClient({
                 type="button"
                 disabled={busy}
                 onClick={() => handleAction("close")}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-[#3D2B35] bg-[#241C2E] px-4 py-2 text-xs font-semibold text-[#A99CAF] hover:text-white cursor-pointer"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-[#F3D5E5] bg-[#FFF7FA] px-4 py-2 text-xs font-semibold text-[#7A566E] hover:text-white cursor-pointer"
               >
                 Close Incident
               </button>
@@ -262,14 +262,14 @@ export function OperatorIncidentReviewClient({
         </div>
 
         <div className="space-y-5 lg:col-span-5">
-          <div className="rounded-xl border border-[#3D2B35] bg-[#211829] p-5 space-y-3">
+          <div className="rounded-xl border border-[#F3D5E5] bg-white p-5 space-y-3">
             <div className="flex items-center gap-2 font-heading text-base font-semibold">
-              <MapPin className="h-4 w-4 text-[#D946A8]" />
+              <MapPin className="h-4 w-4 text-[#DB2777]" />
               Incident Location &amp; Geospatial Selection
             </div>
-            <p className="text-xs text-[#A99CAF]">
+            <p className="text-xs text-[#7A566E]">
               Change the demonstration incident location to see MongoDB{" "}
-              <code className="rounded bg-[#38203F] px-1 text-[#EDDCFF]">
+              <code className="rounded bg-[#FCE7F3] px-1 text-[#2B1324]">
                 2dsphere
               </code>{" "}
               recalculate eligible verified volunteers dynamically.
@@ -278,7 +278,7 @@ export function OperatorIncidentReviewClient({
               <select
                 value={selectedPresetId}
                 onChange={(e) => setSelectedPresetId(e.target.value)}
-                className="flex-1 rounded-lg border border-[#3D2B35] bg-[#160E1F] px-3 py-2 text-xs text-[#F8F2F7] outline-none focus:border-[#BEA3E4]"
+                className="flex-1 rounded-lg border border-[#F3D5E5] bg-[#FFF7FA] px-3 py-2 text-xs text-[#2B1324] outline-none focus:border-[#BEA3E4]"
               >
                 <option value="">Select new demonstration location…</option>
                 {DEMO_LOCATION_PRESETS.map((p) => (
@@ -295,24 +295,24 @@ export function OperatorIncidentReviewClient({
                     areaPresetId: selectedPresetId,
                   })
                 }
-                className="rounded-lg bg-[#38203F] border border-[#3D2B35] px-3.5 py-2 text-xs font-semibold text-[#EDDCFF] hover:bg-[#D946A8] hover:text-white disabled:opacity-50 cursor-pointer"
+                className="rounded-lg bg-[#FCE7F3] border border-[#F3D5E5] px-3.5 py-2 text-xs font-semibold text-[#2B1324] hover:bg-[#DB2777] hover:text-white disabled:opacity-50 cursor-pointer"
               >
                 Apply
               </button>
             </div>
           </div>
 
-          <div className="rounded-xl border border-[#3D2B35] bg-[#211829] p-5 space-y-3">
+          <div className="rounded-xl border border-[#F3D5E5] bg-white p-5 space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 font-heading text-base font-semibold">
-                <UserCheck className="h-4 w-4 text-[#4EDEA3]" />
+                <UserCheck className="h-4 w-4 text-emerald-600" />
                 Eligible Nearby Volunteers ({eligible.length})
               </div>
-              <span className="text-[11px] text-[#A99CAF]">Verified Only</span>
+              <span className="text-[11px] text-[#7A566E]">Verified Only</span>
             </div>
 
             {eligible.length === 0 ? (
-              <div className="rounded-lg border border-dashed border-[#3D2B35] p-4 text-xs text-[#A99CAF]">
+              <div className="rounded-lg border border-dashed border-[#F3D5E5] p-4 text-xs text-[#7A566E]">
                 No verified volunteers found within 15 km of this zone.
               </div>
             ) : (
@@ -322,7 +322,7 @@ export function OperatorIncidentReviewClient({
                   return (
                     <label
                       key={vol._id}
-                      className="flex items-center justify-between gap-3 rounded-lg border border-[#3D2B35] bg-[#241C2E] p-3 text-xs cursor-pointer hover:border-[#BEA3E4]"
+                      className="flex items-center justify-between gap-3 rounded-lg border border-[#F3D5E5] bg-[#FFF7FA] p-3 text-xs cursor-pointer hover:border-[#DB2777]"
                     >
                       <div className="flex items-start gap-2.5">
                         <input
@@ -340,21 +340,21 @@ export function OperatorIncidentReviewClient({
                           className="mt-0.5 h-4 w-4 accent-[#D946A8]"
                         />
                         <div>
-                          <div className="font-semibold text-[#F8F2F7]">
+                          <div className="font-semibold text-[#2B1324]">
                             {vol.displayName}
                           </div>
-                          <div className="text-[11px] text-[#A99CAF]">
+                          <div className="text-[11px] text-[#7A566E]">
                             {vol.registeredArea}
                           </div>
                           <div className="mt-1.5 flex items-center gap-1.5">
-                            <span className="rounded-full bg-[#005236] px-2 py-0.5 text-[10px] font-medium text-[#6FFBBE]">
+                            <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-medium text-emerald-700">
                               {vol.verificationStatus}
                             </span>
                             <span
                               className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${
                                 vol.telegramLinked
-                                  ? "bg-[#38203F] text-[#EDDCFF]"
-                                  : "bg-[#2F2639] text-[#A99CAF]"
+                                  ? "bg-[#FCE7F3] text-[#2B1324]"
+                                  : "bg-[#FCE7F3] text-[#7A566E]"
                               }`}
                             >
                               {vol.telegramLinked
@@ -364,7 +364,7 @@ export function OperatorIncidentReviewClient({
                           </div>
                         </div>
                       </div>
-                      <div className="font-mono text-xs font-semibold text-[#FFAEDA] tabular-nums">
+                      <div className="font-mono text-xs font-semibold text-[#DB2777] tabular-nums">
                         {vol.approxDistanceText}
                       </div>
                     </label>
@@ -374,12 +374,12 @@ export function OperatorIncidentReviewClient({
             )}
           </div>
 
-          <div className="rounded-xl border border-[#3D2B35] bg-[#211829] p-5 space-y-3">
+          <div className="rounded-xl border border-[#F3D5E5] bg-white p-5 space-y-3">
             <h3 className="font-heading text-base font-semibold">
               Dispatch &amp; Volunteer Responses ({notifications.length})
             </h3>
             {notifications.length === 0 ? (
-              <p className="text-xs text-[#A99CAF]">
+              <p className="text-xs text-[#7A566E]">
                 No alerts have been dispatched for this incident yet.
               </p>
             ) : (
@@ -387,30 +387,30 @@ export function OperatorIncidentReviewClient({
                 {notifications.map((n) => (
                   <div
                     key={`${n.incidentId}-${n.volunteerId}`}
-                    className="rounded-lg border border-[#3D2B35] bg-[#241C2E] p-3"
+                    className="rounded-lg border border-[#F3D5E5] bg-[#FFF7FA] p-3"
                   >
                     <div className="flex items-center justify-between font-semibold">
                       <span>{n.volunteerName}</span>
                       <span
                         className={`rounded-full px-2 py-0.5 text-[10px] uppercase ${
                           n.acknowledgementStatus === "accepted"
-                            ? "bg-[#005236] text-[#6FFBBE]"
+                            ? "bg-emerald-50 text-emerald-700"
                             : n.acknowledgementStatus === "declined"
-                              ? "bg-[#93000A] text-[#FFDAD6]"
-                              : "bg-[#653E00] text-[#FFDDB8]"
+                              ? "bg-rose-50 text-rose-700"
+                              : "bg-amber-50 text-amber-800"
                         }`}
                       >
                         Response: {n.acknowledgementStatus}
                       </span>
                     </div>
-                    <div className="mt-1 flex items-center justify-between text-[11px] text-[#A99CAF]">
+                    <div className="mt-1 flex items-center justify-between text-[11px] text-[#7A566E]">
                       <span>Telegram: {n.telegramStatus}</span>
                       <span className="tabular-nums">
                         {new Date(n.notificationSentAt).toLocaleTimeString()}
                       </span>
                     </div>
                     {n.telegramError && (
-                      <div className="mt-1 text-[11px] text-[#FFB95F]">
+                      <div className="mt-1 text-[11px] text-amber-600">
                         {n.telegramError}
                       </div>
                     )}
@@ -424,18 +424,18 @@ export function OperatorIncidentReviewClient({
 
       {confirmDispatchModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-          <div className="w-full max-w-md rounded-2xl border border-[#3D2B35] bg-[#211829] p-6 shadow-2xl space-y-4 text-[#F8F2F7]">
-            <div className="flex items-center gap-2.5 text-[#FFAEDA]">
-              <ShieldAlert className="h-6 w-6 text-[#D946A8]" />
+          <div className="w-full max-w-md rounded-2xl border border-[#F3D5E5] bg-white p-6 shadow-2xl space-y-4 text-[#2B1324]">
+            <div className="flex items-center gap-2.5 text-[#DB2777]">
+              <ShieldAlert className="h-6 w-6 text-[#DB2777]" />
               <h3 className="font-heading text-lg font-semibold">
                 Confirm Volunteer Alert Dispatch
               </h3>
             </div>
-            <p className="text-sm text-[#A99CAF]">
+            <p className="text-sm text-[#7A566E]">
               You are about to dispatch{" "}
-              <strong className="text-[#F8F2F7]">{selectedVolIds.length}</strong>{" "}
+              <strong className="text-[#2B1324]">{selectedVolIds.length}</strong>{" "}
               verified community volunteer(s) near{" "}
-              <strong className="text-[#F8F2F7]">
+              <strong className="text-[#2B1324]">
                 {incident.incidentLocation.approxLabel}
               </strong>
               . Only the PrivacyShield non-identifying preview and approximate
@@ -445,7 +445,7 @@ export function OperatorIncidentReviewClient({
               <button
                 type="button"
                 onClick={() => setConfirmDispatchModal(false)}
-                className="rounded-lg border border-[#3D2B35] bg-[#160E1F] px-4 py-2 text-xs font-semibold text-[#A99CAF] cursor-pointer"
+                className="rounded-lg border border-[#F3D5E5] bg-[#FFF7FA] px-4 py-2 text-xs font-semibold text-[#7A566E] cursor-pointer"
               >
                 Cancel
               </button>
@@ -453,7 +453,7 @@ export function OperatorIncidentReviewClient({
                 type="button"
                 disabled={busy}
                 onClick={handleDispatch}
-                className="rounded-lg bg-[#D946A8] px-4 py-2 text-xs font-semibold text-white hover:bg-[#c13592] cursor-pointer"
+                className="rounded-lg bg-[#DB2777] px-4 py-2 text-xs font-semibold text-white hover:bg-[#BE185D] cursor-pointer"
               >
                 {busy ? "Dispatching…" : "Confirm & Send Alerts"}
               </button>

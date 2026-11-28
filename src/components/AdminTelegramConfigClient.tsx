@@ -56,34 +56,34 @@ export function AdminTelegramConfigClient() {
   }
 
   return (
-    <div className="rounded-xl border border-[#3D2B35] bg-[#211829] p-5 space-y-4">
+    <div className="rounded-xl border border-[#F3D5E5] bg-white p-5 space-y-4">
       <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2 font-heading text-sm font-semibold text-[#F8F2F7]">
-          <MessageCircle className="h-4 w-4 text-[#BEA3E4]" />
+        <div className="flex items-center gap-2 font-heading text-sm font-semibold text-[#2B1324]">
+          <MessageCircle className="h-4 w-4 text-[#DB2777]" />
           Vercel Serverless Telegram Bot Webhook
         </div>
         {info?.bot?.username && (
-          <span className="inline-flex items-center gap-1 rounded-full bg-[#005236] px-2.5 py-0.5 text-xs font-medium text-[#6FFBBE]">
+          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-700">
             <CheckCircle2 className="h-3 w-3" />@{info.bot.username}
           </span>
         )}
       </div>
 
-      <p className="text-xs text-[#A99CAF]">
+      <p className="text-xs text-[#7A566E]">
         Incoming commands (<code>/start &lt;code&gt;</code>, <code>/id</code>)
         and inline button callbacks route to{" "}
-        <code className="text-[#EDDCFF]">/api/telegram/webhook</code> as a
+        <code className="text-[#2B1324]">/api/telegram/webhook</code> as a
         Vercel serverless function.
       </p>
 
       {info?.webhook?.url && (
-        <div className="rounded-lg border border-[#3D2B35] bg-[#241C2E] p-3 text-xs">
-          <div className="text-[#A99CAF]">Active Webhook URL:</div>
-          <div className="mt-0.5 font-mono text-[#6FFBBE] break-all">
+        <div className="rounded-lg border border-[#F3D5E5] bg-[#FFF7FA] p-3 text-xs">
+          <div className="text-[#7A566E]">Active Webhook URL:</div>
+          <div className="mt-0.5 font-mono text-emerald-700 break-all">
             {info.webhook.url}
           </div>
           {info.webhook.lastErrorMessage && (
-            <div className="mt-1 text-[#FFB95F]">
+            <div className="mt-1 text-amber-600">
               Last Telegram delivery note: {info.webhook.lastErrorMessage}
             </div>
           )}
@@ -91,31 +91,31 @@ export function AdminTelegramConfigClient() {
       )}
 
       {msg && (
-        <div className="rounded-lg border border-[#005236] bg-[#005236]/50 px-3 py-2 text-xs text-[#6FFBBE]">
+        <div className="rounded-lg border border-emerald-200 bg-emerald-50/50 px-3 py-2 text-xs text-emerald-700">
           {msg}
         </div>
       )}
       {err && (
-        <div className="rounded-lg border border-[#653E00] bg-[#653E00]/40 px-3 py-2 text-xs text-[#FFDDB8]">
+        <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
           {err}
         </div>
       )}
 
       <form onSubmit={handleRegisterWebhook} className="flex flex-wrap gap-2">
         <div className="relative flex-1 min-w-[240px]">
-          <Globe className="pointer-events-none absolute left-3 top-2.5 h-3.5 w-3.5 text-[#A99CAF]" />
+          <Globe className="pointer-events-none absolute left-3 top-2.5 h-3.5 w-3.5 text-[#7A566E]" />
           <input
             type="url"
             value={webhookUrl}
             onChange={(e) => setWebhookUrl(e.target.value)}
             placeholder="https://your-app.vercel.app/api/telegram/webhook"
-            className="w-full rounded-lg border border-[#3D2B35] bg-[#160E1F] py-2 pl-8 pr-3 font-mono text-xs text-[#F8F2F7] outline-none focus:border-[#BEA3E4]"
+            className="w-full rounded-lg border border-[#F3D5E5] bg-[#FFF7FA] py-2 pl-8 pr-3 font-mono text-xs text-[#2B1324] outline-none focus:border-[#BEA3E4]"
           />
         </div>
         <button
           type="submit"
           disabled={busy}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-[#D946A8] px-4 py-2 text-xs font-semibold text-white hover:bg-[#c13592] disabled:opacity-60 cursor-pointer"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-[#DB2777] px-4 py-2 text-xs font-semibold text-white hover:bg-[#BE185D] disabled:opacity-60 cursor-pointer"
         >
           <RefreshCw className="h-3.5 w-3.5" />
           Register Vercel Webhook

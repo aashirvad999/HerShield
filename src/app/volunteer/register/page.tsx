@@ -141,10 +141,10 @@ export default function VolunteerRegisterPage() {
 
   return (
     <div className="min-h-screen hs-gradient-hero flex items-center justify-center p-4 py-10">
-      <div className="w-full max-w-lg rounded-2xl border border-[#3D2B35] bg-[#211829] p-7 shadow-2xl text-[#F8F2F7]">
+      <div className="w-full max-w-lg rounded-2xl border border-[#F3D5E5] bg-white p-7 shadow-2xl text-[#2B1324]">
         <div className="mb-5 flex items-center justify-between">
           <HerShieldLogo subtitle="Volunteer Onboarding" />
-          <span className="rounded-full bg-[#38203F] border border-[#3D2B35] px-3 py-1 text-[11px] font-semibold text-[#EDDCFF]">
+          <span className="rounded-full bg-[#FCE7F3] border border-[#F3D5E5] px-3 py-1 text-[11px] font-semibold text-[#2B1324]">
             {step === "form" ? "Step 1 of 2" : "Step 2 of 2 • Telegram"}
           </span>
         </div>
@@ -154,7 +154,7 @@ export default function VolunteerRegisterPage() {
             <h1 className="font-heading text-2xl font-semibold">
               Register &amp; Connect Telegram
             </h1>
-            <p className="mt-1 text-sm text-[#A99CAF]">
+            <p className="mt-1 text-sm text-[#7A566E]">
               Create your volunteer account, then open the HerShield Telegram
               bot chat to activate instant safety alerts.
             </p>
@@ -162,7 +162,7 @@ export default function VolunteerRegisterPage() {
             <form onSubmit={handleSubmit} className="mt-6 space-y-4">
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="mb-1 block text-xs font-medium text-[#A99CAF]">
+                  <label className="mb-1 block text-xs font-medium text-[#7A566E]">
                     Full Name
                   </label>
                   <input
@@ -171,11 +171,11 @@ export default function VolunteerRegisterPage() {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Kavita Rao"
-                    className="w-full rounded-lg border border-[#3D2B35] bg-[#160E1F] px-3.5 py-2.5 text-sm text-[#F8F2F7] outline-none focus:border-[#BEA3E4]"
+                    className="w-full rounded-lg border border-[#F3D5E5] bg-[#FFF7FA] px-3.5 py-2.5 text-sm text-[#2B1324] outline-none focus:border-[#BEA3E4]"
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-xs font-medium text-[#A99CAF]">
+                  <label className="mb-1 block text-xs font-medium text-[#7A566E]">
                     Email Address
                   </label>
                   <input
@@ -184,13 +184,13 @@ export default function VolunteerRegisterPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="kavita@example.com"
-                    className="w-full rounded-lg border border-[#3D2B35] bg-[#160E1F] px-3.5 py-2.5 text-sm text-[#F8F2F7] outline-none focus:border-[#BEA3E4]"
+                    className="w-full rounded-lg border border-[#F3D5E5] bg-[#FFF7FA] px-3.5 py-2.5 text-sm text-[#2B1324] outline-none focus:border-[#BEA3E4]"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="mb-1 block text-xs font-medium text-[#A99CAF]">
+                <label className="mb-1 block text-xs font-medium text-[#7A566E]">
                   Password (min 8 chars)
                 </label>
                 <input
@@ -200,19 +200,19 @@ export default function VolunteerRegisterPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Create a secure password"
-                  className="w-full rounded-lg border border-[#3D2B35] bg-[#160E1F] px-3.5 py-2.5 text-sm text-[#F8F2F7] outline-none focus:border-[#BEA3E4]"
+                  className="w-full rounded-lg border border-[#F3D5E5] bg-[#FFF7FA] px-3.5 py-2.5 text-sm text-[#2B1324] outline-none focus:border-[#BEA3E4]"
                 />
               </div>
 
               <div>
-                <label className="mb-1 flex items-center gap-1.5 text-xs font-medium text-[#A99CAF]">
-                  <MapPin className="h-3.5 w-3.5 text-[#D946A8]" />
+                <label className="mb-1 flex items-center gap-1.5 text-xs font-medium text-[#7A566E]">
+                  <MapPin className="h-3.5 w-3.5 text-[#DB2777]" />
                   Registered Usual Area (Approximate Zone)
                 </label>
                 <select
                   value={areaPresetId}
                   onChange={(e) => setAreaPresetId(e.target.value)}
-                  className="w-full rounded-lg border border-[#3D2B35] bg-[#160E1F] px-3.5 py-2.5 text-sm text-[#F8F2F7] outline-none focus:border-[#BEA3E4]"
+                  className="w-full rounded-lg border border-[#F3D5E5] bg-[#FFF7FA] px-3.5 py-2.5 text-sm text-[#2B1324] outline-none focus:border-[#BEA3E4]"
                 >
                   {DEMO_LOCATION_PRESETS.map((p) => (
                     <option key={p.id} value={p.id}>
@@ -220,15 +220,15 @@ export default function VolunteerRegisterPage() {
                     </option>
                   ))}
                 </select>
-                <p className="mt-1 text-[11px] text-[#A99CAF]">
+                <p className="mt-1 text-[11px] text-[#7A566E]">
                   Stored as a GeoJSON Point for MongoDB 2dsphere proximity
                   matching. Exact home addresses are never exposed.
                 </p>
               </div>
 
-              <div className="rounded-xl border border-dashed border-[#3D2B35] bg-[#241C2E] p-3.5">
-                <label className="flex items-center gap-2 text-xs font-medium text-[#F8F2F7]">
-                  <Upload className="h-4 w-4 text-[#BEA3E4]" />
+              <div className="rounded-xl border border-dashed border-[#F3D5E5] bg-[#FFF7FA] p-3.5">
+                <label className="flex items-center gap-2 text-xs font-medium text-[#2B1324]">
+                  <Upload className="h-4 w-4 text-[#DB2777]" />
                   Verification Document (Hackathon Demo Placeholder)
                 </label>
                 <input
@@ -237,21 +237,21 @@ export default function VolunteerRegisterPage() {
                     const file = e.target.files?.[0];
                     if (file) setDocName(file.name);
                   }}
-                  className="mt-2 block w-full text-xs text-[#A99CAF] file:mr-3 file:rounded-md file:border file:border-[#3D2B35] file:bg-[#38203F] file:px-3 py-1.5 file:text-xs file:font-medium file:text-[#EDDCFF]"
+                  className="mt-2 block w-full text-xs text-[#7A566E] file:mr-3 file:rounded-md file:border file:border-[#F3D5E5] file:bg-[#FCE7F3] file:px-3 py-1.5 file:text-xs file:font-medium file:text-[#2B1324]"
                 />
-                <div className="mt-1.5 flex items-center gap-1.5 text-[11px] text-[#A99CAF]">
-                  <FileCheck className="h-3.5 w-3.5 text-[#4EDEA3]" />
+                <div className="mt-1.5 flex items-center gap-1.5 text-[11px] text-[#7A566E]">
+                  <FileCheck className="h-3.5 w-3.5 text-emerald-600" />
                   Selected reference:{" "}
-                  <span className="font-mono text-[#F8F2F7]">{docName}</span>
+                  <span className="font-mono text-[#2B1324]">{docName}</span>
                 </div>
-                <p className="mt-1 text-[11px] text-[#FFB95F]">
+                <p className="mt-1 text-[11px] text-amber-600">
                   Demo notice: Uploaded reference is used only for simulated
                   administrator review. No real criminal background check is
                   performed.
                 </p>
               </div>
 
-              <label className="flex items-start gap-2.5 rounded-xl border border-[#3D2B35] bg-[#241C2E] p-3 text-xs text-[#A99CAF]">
+              <label className="flex items-start gap-2.5 rounded-xl border border-[#F3D5E5] bg-[#FFF7FA] p-3 text-xs text-[#7A566E]">
                 <input
                   type="checkbox"
                   checked={consentAccepted}
@@ -267,7 +267,7 @@ export default function VolunteerRegisterPage() {
               </label>
 
               {error && (
-                <div className="rounded-lg border border-[#93000A] bg-[#93000A]/40 px-3.5 py-2.5 text-xs font-medium text-[#FFDAD6]">
+                <div className="rounded-lg border border-rose-200 bg-rose-50 px-3.5 py-2.5 text-xs font-medium text-rose-700">
                   {error}
                 </div>
               )}
@@ -275,7 +275,7 @@ export default function VolunteerRegisterPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#D946A8] py-3 text-sm font-semibold text-white hover:bg-[#c13592] disabled:opacity-60 cursor-pointer"
+                className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#DB2777] py-3 text-sm font-semibold text-white hover:bg-[#BE185D] disabled:opacity-60 cursor-pointer"
               >
                 <ShieldCheck className="h-4 w-4" />
                 {loading
@@ -285,11 +285,11 @@ export default function VolunteerRegisterPage() {
               </button>
             </form>
 
-            <p className="mt-4 text-center text-xs text-[#A99CAF]">
+            <p className="mt-4 text-center text-xs text-[#7A566E]">
               Already registered?{" "}
               <Link
                 href="/volunteer/login"
-                className="font-semibold text-[#FFAEDA] hover:underline"
+                className="font-semibold text-[#DB2777] hover:underline"
               >
                 Sign in to Volunteer Portal
               </Link>
@@ -301,19 +301,19 @@ export default function VolunteerRegisterPage() {
               <h1 className="font-heading text-2xl font-semibold">
                 Connect Telegram Notification Bot
               </h1>
-              <p className="mt-1 text-sm text-[#A99CAF]">
+              <p className="mt-1 text-sm text-[#7A566E]">
                 Open the HerShield bot chat in Telegram and press{" "}
-                <strong className="text-[#F8F2F7]">Start</strong>. The
+                <strong className="text-[#2B1324]">Start</strong>. The
                 notification system will activate automatically.
               </p>
             </div>
 
             {!linkedInfo ? (
-              <div className="space-y-4 rounded-xl border border-[#3D2B35] bg-[#241C2E] p-5">
-                <div className="text-xs text-[#A99CAF]">
+              <div className="space-y-4 rounded-xl border border-[#F3D5E5] bg-[#FFF7FA] p-5">
+                <div className="text-xs text-[#7A566E]">
                   Your personal Telegram verification command:
                 </div>
-                <div className="rounded-lg border border-[#3D2B35] bg-[#120B1B] px-3.5 py-2.5 font-mono text-sm text-[#FFAEDA]">
+                <div className="rounded-lg border border-[#F3D5E5] bg-[#FDF2F8] px-3.5 py-2.5 font-mono text-sm text-[#DB2777]">
                   /start {linkCode}
                 </div>
 
@@ -323,43 +323,43 @@ export default function VolunteerRegisterPage() {
                     target="_blank"
                     rel="noreferrer"
                     onClick={() => setPolling(true)}
-                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#D946A8] py-3.5 text-sm font-semibold text-white hover:bg-[#c13592] transition"
+                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#DB2777] py-3.5 text-sm font-semibold text-white hover:bg-[#BE185D] transition"
                   >
                     <MessageCircle className="h-4 w-4" />
                     Open @{botUsername} in Telegram
                     <ExternalLink className="h-4 w-4" />
                   </a>
                 ) : (
-                  <div className="rounded-lg border border-[#653E00] bg-[#653E00]/40 p-3 text-xs text-[#FFDDB8]">
+                  <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800">
                     Bot username not detected yet. Ensure{" "}
                     <code>TELEGRAM_BOT_TOKEN</code> is loaded in{" "}
                     <code>.env.local</code> and server restarted.
                   </div>
                 )}
 
-                <div className="flex items-center justify-between gap-2 text-xs text-[#BEA3E4]">
+                <div className="flex items-center justify-between gap-2 text-xs text-[#DB2777]">
                   <span className="inline-flex items-center gap-2">
-                    <Loader2 className="h-3.5 w-3.5 animate-spin text-[#D946A8]" />
+                    <Loader2 className="h-3.5 w-3.5 animate-spin text-[#DB2777]" />
                     Waiting for you to press Start in Telegram…
                   </span>
                   <button
                     type="button"
                     onClick={handleManualVerify}
-                    className="rounded-md border border-[#3D2B35] bg-[#38203F] px-3 py-1.5 text-xs font-semibold text-[#EDDCFF] hover:border-[#BEA3E4] cursor-pointer"
+                    className="rounded-md border border-[#F3D5E5] bg-[#FCE7F3] px-3 py-1.5 text-xs font-semibold text-[#2B1324] hover:border-[#DB2777] cursor-pointer"
                   >
                     Verify Now
                   </button>
                 </div>
               </div>
             ) : (
-              <div className="space-y-4 rounded-xl border border-[#005236] bg-[#005236]/35 p-5">
-                <div className="flex items-center gap-2 text-base font-semibold text-[#6FFBBE]">
+              <div className="space-y-4 rounded-xl border border-emerald-200 bg-emerald-50/35 p-5">
+                <div className="flex items-center gap-2 text-base font-semibold text-emerald-700">
                   <CheckCircle2 className="h-5 w-5" />
                   Telegram Notification System Started!
                 </div>
-                <p className="text-xs text-[#F8F2F7]">
+                <p className="text-xs text-[#2B1324]">
                   Linked Chat ID:{" "}
-                  <code className="font-mono text-[#FFAEDA]">
+                  <code className="font-mono text-[#DB2777]">
                     {linkedInfo.chatId}
                   </code>
                   {linkedInfo.username ? ` (@${linkedInfo.username})` : ""}. A
@@ -370,7 +370,7 @@ export default function VolunteerRegisterPage() {
                   <button
                     type="button"
                     onClick={handleSendTestAlert}
-                    className="inline-flex items-center gap-1.5 rounded-lg bg-[#D946A8] px-4 py-2.5 text-xs font-semibold text-white hover:bg-[#c13592] cursor-pointer"
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-[#DB2777] px-4 py-2.5 text-xs font-semibold text-white hover:bg-[#BE185D] cursor-pointer"
                   >
                     <Send className="h-3.5 w-3.5" />
                     Send Test Notification
@@ -381,7 +381,7 @@ export default function VolunteerRegisterPage() {
                       router.push("/volunteer");
                       router.refresh();
                     }}
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-[#3D2B35] bg-[#211829] px-4 py-2.5 text-xs font-semibold text-[#F8F2F7] hover:border-[#BEA3E4] cursor-pointer"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-[#F3D5E5] bg-white px-4 py-2.5 text-xs font-semibold text-[#2B1324] hover:border-[#DB2777] cursor-pointer"
                   >
                     Go to Volunteer Dashboard
                     <ArrowRight className="h-3.5 w-3.5" />
@@ -391,21 +391,21 @@ export default function VolunteerRegisterPage() {
             )}
 
             {testMsg && (
-              <div className="rounded-lg border border-[#005236] bg-[#005236]/50 px-3.5 py-2.5 text-xs text-[#6FFBBE]">
+              <div className="rounded-lg border border-emerald-200 bg-emerald-50/50 px-3.5 py-2.5 text-xs text-emerald-700">
                 {testMsg}
               </div>
             )}
             {error && (
-              <div className="rounded-lg border border-[#653E00] bg-[#653E00]/40 px-3.5 py-2.5 text-xs text-[#FFDDB8]">
+              <div className="rounded-lg border border-amber-200 bg-amber-50 px-3.5 py-2.5 text-xs text-amber-800">
                 {error}
               </div>
             )}
 
-            <div className="flex items-center justify-between border-t border-[#3D2B35] pt-3 text-xs text-[#A99CAF]">
+            <div className="flex items-center justify-between border-t border-[#F3D5E5] pt-3 text-xs text-[#7A566E]">
               <span>Verification Status: Submitted (Admin review pending)</span>
               <Link
                 href="/volunteer"
-                className="font-semibold text-[#BEA3E4] hover:text-[#FFAEDA]"
+                className="font-semibold text-[#DB2777] hover:text-[#DB2777]"
               >
                 Skip for now →
               </Link>

@@ -9,7 +9,7 @@ import {
 import type { VolunteerDoc } from "@/lib/types";
 
 export async function POST() {
-  const user = await getSessionUser();
+  const user = await getSessionUser("volunteer");
   if (!user || user.role !== "volunteer") {
     return NextResponse.json(
       { error: "Volunteer session required." },
@@ -129,7 +129,7 @@ export async function POST() {
 }
 
 export async function DELETE() {
-  const user = await getSessionUser();
+  const user = await getSessionUser("volunteer");
   if (!user || user.role !== "volunteer") {
     return NextResponse.json(
       { error: "Volunteer session required." },

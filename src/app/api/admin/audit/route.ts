@@ -4,7 +4,7 @@ import { getDataContext } from "@/lib/data-access";
 import type { AuditLogDoc } from "@/lib/types";
 
 export async function GET() {
-  const user = await getSessionUser();
+  const user = await getSessionUser("admin");
   if (!user || user.role !== "admin") {
     return NextResponse.json(
       { error: "Administrator access required." },

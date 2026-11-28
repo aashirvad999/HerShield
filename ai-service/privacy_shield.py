@@ -10,14 +10,6 @@ import numpy as np
 
 from config import PREVIEWS_DIR, PRIVACY_BUFFER_PRE_SECONDS
 
-# COCO 17-keypoint skeleton bone connections
-COCO_EDGES = [
-    (0, 1), (0, 2), (1, 3), (2, 4),
-    (5, 6), (5, 7), (7, 9), (6, 8), (8, 10),
-    (5, 11), (6, 12), (11, 12),
-    (11, 13), (13, 15), (12, 14), (14, 16),
-]
-
 
 @dataclass
 class SanitizedFrameSnapshot:
@@ -27,12 +19,76 @@ class SanitizedFrameSnapshot:
     boxes: List[Dict[str, Any]] = field(default_factory=list)
     keypoints_list: List[List[List[float]]] = field(default_factory=list)
     label: str = "Monitoring"
+    frame_jpeg: Optional[bytes] = None
+
+
+def _blur_region(img: np.ndarray, x1: int, y1: int, x2: int, y2: int) -> None:
+    """Applies strong Gaussian blur in-place to a clamped rectangular region."""
+    h, w = img.shape[:2]
+    cx1 = max(0, min(w - 1, x1))
+    cy1 = max(0, min(h - 1, y1))
+    cx2 = max(cx1 + 1, min(w, x2))
+    cy2 = max(cy1 + 1, min(h, y2))
+    roi = img[cy1:cy2, cx1:cx2]
+    if roi.size == 0:
+        return
+    # Pixelate + strong Gaussian blur so faces cannot be reconstructed
+    rw, rh = roi.shape[1], roi.shape[0]
+    small_w = max(4, rw // 10)
+    small_h = max(4, rh // 10)
+    pixelated = cv2.resize(roi, (small_w, small_h), interpolation=cv2.INTER_LINEAR)
+    pixelated = cv2.resize(pixelated, (rw, rh), interpolation=cv2.INTER_NEAREST)
+    blurred = cv2.GaussianBlur(pixelated, (35, 35), 20)
+    img[cy1:cy2, cx1:cx2] = blurred
+
+
+def _blur_faces_on_frame(
+    img: np.ndarray,
+    boxes: List[Dict[str, Any]],
+    keypoints_list: List[List[List[float]]],
+    scale_x: float,
+    scale_y: float,
+) -> np.ndarray:
+    """Blurs every detected person's face using pose head keypoints or upper-box fallback."""
+    for idx, box in enumerate(boxes):
+        bx1 = int(box["x1"] * scale_x)
+        by1 = int(box["y1"] * scale_y)
+        bx2 = int(box["x2"] * scale_x)
+        by2 = int(box["y2"] * scale_y)
+        bh = max(20, by2 - by1)
+        bw = max(20, bx2 - bx1)
+
+        head_pts = []
+        if idx < len(keypoints_list):
+            kps = keypoints_list[idx]
+            for j in range(min(5, len(kps))):
+                if kps[j][2] > 0.20:
+                    head_pts.append((kps[j][0] * scale_x, kps[j][1] * scale_y))
+
+        if head_pts:
+            xs = [p[0] for p in head_pts]
+            ys = [p[1] for p in head_pts]
+            span = max(max(xs) - min(xs), max(ys) - min(ys))
+            pad = max(18, int(max(span * 0.85, bh * 0.11)))
+            fx1 = int(min(xs) - pad)
+            fy1 = int(min(ys) - pad * 1.1)
+            fx2 = int(max(xs) + pad)
+            fy2 = int(max(ys) + pad * 0.9)
+        else:
+            # Fallback: blur upper head region of bounding box
+            fx1 = bx1 + int(bw * 0.15)
+            fx2 = bx2 - int(bw * 0.15)
+            fy1 = by1
+            fy2 = by1 + int(bh * 0.24)
+
+        _blur_region(img, fx1, fy1, fx2, fy2)
+    return img
 
 
 class PrivacyShieldBuffer:
     """
-    Maintains a rolling in-memory buffer of ONLY pose keypoints and anonymized boxes.
-    Raw camera frames are processed transiently in RAM and never saved for volunteer distribution.
+    Maintains a rolling in-memory buffer of recent frames and pose metadata
+    so volunteer incident previews can be exported with all faces blurred.
     """
 
     def __init__(self, max_seconds: float = 12.0, approx_fps: float = 15.0) -> None:
@@ -53,9 +109,8 @@ class PrivacyShieldBuffer:
         fps: float = 10.0,
     ) -> Dict[str, Any]:
         """
-        Draws non-identifying stick-figure skeletons on a blank Deep Plum (#160E1F) canvas,
-        exports a short local MP4 preview, computes SHA-256 integrity hash, and returns
-        both file metadata and lightweight timeline keyframes for UI rendering.
+        Exports a face-blurred WebM video clip (browser-playable) of the incident
+        window without vector skeleton overlays, and computes its SHA-256 hash.
         """
         frames = snapshots if snapshots is not None else list(self.buffer)
         if not frames:
@@ -73,119 +128,72 @@ class PrivacyShieldBuffer:
         window = [f for f in frames if f.timestamp >= cutoff] or frames[-30:]
 
         out_w, out_h = 640, 480
-        out_path = PREVIEWS_DIR / f"{incident_id}_sanitized.mp4"
-        fourcc = cv2.VideoWriter_fourcc(*"mp4v")
-        writer = cv2.VideoWriter(str(out_path), fourcc, max(4.0, min(fps, 15.0)), (out_w, out_h))
+        out_path = PREVIEWS_DIR / f"{incident_id}_sanitized.webm"
+        fourcc = cv2.VideoWriter_fourcc(*"VP80")
+        writer = cv2.VideoWriter(
+            str(out_path),
+            fourcc,
+            max(4.0, min(fps, 15.0)),
+            (out_w, out_h),
+        )
+        if not writer.isOpened():
+            out_path = PREVIEWS_DIR / f"{incident_id}_sanitized.mp4"
+            fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+            writer = cv2.VideoWriter(
+                str(out_path),
+                fourcc,
+                max(4.0, min(fps, 15.0)),
+                (out_w, out_h),
+            )
 
-        timeline_frames: List[Dict[str, Any]] = []
         t0 = window[0].timestamp
 
-        for idx, snap in enumerate(window):
-            canvas = np.full((out_h, out_w, 3), (31, 14, 22), dtype=np.uint8)  # BGR for #160E1F
+        for snap in window:
+            img = None
+            if snap.frame_jpeg:
+                arr = np.frombuffer(snap.frame_jpeg, dtype=np.uint8)
+                decoded = cv2.imdecode(arr, cv2.IMREAD_COLOR)
+                if decoded is not None:
+                    if decoded.shape[1] != out_w or decoded.shape[0] != out_h:
+                        img = cv2.resize(decoded, (out_w, out_h), interpolation=cv2.INTER_AREA)
+                    else:
+                        img = decoded
 
-            # Subtle grid lines for spatial context without any identifiable surroundings
-            for gx in range(80, out_w, 80):
-                cv2.line(canvas, (gx, 0), (gx, out_h), (48, 28, 56), 1)
-            for gy in range(80, out_h, 80):
-                cv2.line(canvas, (0, gy), (out_w, gy), (48, 28, 56), 1)
-
-            scale_x = out_w / max(1, snap.width)
-            scale_y = out_h / max(1, snap.height)
-
-            scaled_boxes = []
-            for box in snap.boxes:
-                x1 = int(box["x1"] * scale_x)
-                y1 = int(box["y1"] * scale_y)
-                x2 = int(box["x2"] * scale_x)
-                y2 = int(box["y2"] * scale_y)
-                tid = int(box.get("trackId", 0))
-                scaled_boxes.append({"x1": x1, "y1": y1, "x2": x2, "y2": y2, "trackId": tid})
-                cv2.rectangle(canvas, (x1, y1), (x2, y2), (228, 163, 190), 1, cv2.LINE_AA)
+            if img is None:
+                img = np.full((out_h, out_w, 3), (31, 14, 22), dtype=np.uint8)
                 cv2.putText(
-                    canvas,
-                    f"Subject #{tid}",
-                    (x1, max(20, y1 - 6)),
+                    img,
+                    snap.label or incident_title,
+                    (24, out_h // 2),
                     cv2.FONT_HERSHEY_SIMPLEX,
-                    0.45,
+                    0.65,
                     (228, 163, 190),
-                    1,
+                    2,
                     cv2.LINE_AA,
                 )
+            else:
+                scale_x = out_w / max(1, snap.width)
+                scale_y = out_h / max(1, snap.height)
+                img = _blur_faces_on_frame(
+                    img,
+                    snap.boxes,
+                    snap.keypoints_list,
+                    scale_x,
+                    scale_y,
+                )
 
-            primary_kps: List[List[float]] = []
-            for kps in snap.keypoints_list:
-                scaled_kps = [
-                    [float(kp[0] * scale_x), float(kp[1] * scale_y), float(kp[2])]
-                    for kp in kps
-                ]
-                if not primary_kps and scaled_kps:
-                    primary_kps = [[round(v, 1) for v in kp] for kp in scaled_kps]
-
-                for a, b in COCO_EDGES:
-                    if a < len(scaled_kps) and b < len(scaled_kps):
-                        ka, kb = scaled_kps[a], scaled_kps[b]
-                        if ka[2] > 0.25 and kb[2] > 0.25:
-                            cv2.line(
-                                canvas,
-                                (int(ka[0]), int(ka[1])),
-                                (int(kb[0]), int(kb[1])),
-                                (168, 70, 217),  # BGR Magenta #D946A8
-                                3,
-                                cv2.LINE_AA,
-                            )
-
-                for j_idx, kp in enumerate(scaled_kps):
-                    if kp[2] > 0.25:
-                        # Replace head keypoints (0..4) with a clean anonymous head marker at nose
-                        if j_idx in (1, 2, 3, 4):
-                            continue
-                        radius = 10 if j_idx == 0 else 4
-                        color = (228, 163, 190) if j_idx == 0 else (235, 220, 243)
-                        thickness = 2 if j_idx == 0 else -1
-                        cv2.circle(
-                            canvas,
-                            (int(kp[0]), int(kp[1])),
-                            radius,
-                            color,
-                            thickness,
-                            cv2.LINE_AA,
-                        )
-
-            cv2.rectangle(canvas, (0, 0), (out_w, 34), (42, 22, 48), -1)
+            cv2.rectangle(img, (0, 0), (out_w, 30), (22, 14, 31), -1)
             cv2.putText(
-                canvas,
-                f"PRIVACYSHIELD NON-IDENTIFYING PREVIEW | {incident_id}",
-                (14, 22),
+                img,
+                f"HERSHIELD FACE-BLURRED PREVIEW | {incident_id} | t+{snap.timestamp - t0:.1f}s",
+                (12, 20),
                 cv2.FONT_HERSHEY_SIMPLEX,
-                0.48,
+                0.45,
                 (248, 245, 250),
                 1,
                 cv2.LINE_AA,
             )
-            cv2.putText(
-                canvas,
-                f"{snap.label} | t+{snap.timestamp - t0:.1f}s",
-                (14, out_h - 14),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                0.45,
-                (190, 163, 228),
-                1,
-                cv2.LINE_AA,
-            )
-
-            writer.write(canvas)
-
-            # Sample up to ~24 keyframes for fast JSON UI playback
-            step = max(1, len(window) // 24)
-            if idx % step == 0 or idx == len(window) - 1:
-                timeline_frames.append(
-                    {
-                        "t": round(snap.timestamp - t0, 2),
-                        "keypoints": primary_kps,
-                        "boxes": scaled_boxes,
-                        "label": snap.label,
-                    }
-                )
+            writer.write(img)
 
         writer.release()
 
@@ -201,6 +209,6 @@ class PrivacyShieldBuffer:
             "preview_path": str(out_path),
             "preview_reference": f"/api/ai-proxy/privacy/preview/{incident_id}",
             "preview_sha256": sha256_hex,
-            "timeline_frames": timeline_frames,
+            "timeline_frames": [],
             "frame_count": len(window),
         }

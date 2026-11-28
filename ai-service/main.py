@@ -184,12 +184,18 @@ class FreshFrameReader:
         self.thread.start()
 
     def _worker(self) -> None:
+        errors = 0
         while self.running and self.cap.isOpened():
             ret, frame = self.cap.read()
             if not ret or frame is None:
-                with self.lock:
-                    self.ret = False
-                break
+                errors += 1
+                if errors >= 60:
+                    with self.lock:
+                        self.ret = False
+                    break
+                time.sleep(0.05)
+                continue
+            errors = 0
             with self.lock:
                 self.ret = True
                 self.frame = frame
@@ -453,7 +459,7 @@ def run_capture_loop(source: Any, source_label: str, area_preset_id: str, loop_f
                     cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
                     continue
                 consecutive_failures += 1
-                if consecutive_failures >= 15:
+                if consecutive_failures >= 80:
                     with state.lock:
                         state.last_error = f"Video stream '{source_label}' disconnected."
                         state.running = False
@@ -520,6 +526,8 @@ def health() -> Dict[str, Any]:
             "inferenceMs": state.inference_ms,
             "inferenceSize": INFERENCE_SIZE,
             "collapseTimer": detector.active_collapse_timer,
+            "detectionEnabled": detector.detection_enabled,
+            "palmCooldownActive": detector.palm_cooldown_active,
             "privacyShieldActive": True,
             "bufferFrames": len(privacy_buffer.buffer),
             "lastError": state.last_error,
@@ -829,10 +837,21 @@ def get_upload_status() -> Dict[str, Any]:
 @app.get("/privacy/preview/{incident_id}")
 def get_sanitized_preview(incident_id: str) -> FileResponse:
     safe_id = Path(incident_id).name
-    path = PREVIEWS_DIR / f"{safe_id}_sanitized.mp4"
-    if not path.exists():
-        raise HTTPException(status_code=404, detail="Sanitized PrivacyShield preview not found.")
-    return FileResponse(path, media_type="video/mp4", filename=f"{safe_id}_privacyshield.mp4")
+    webm_path = PREVIEWS_DIR / f"{safe_id}_sanitized.webm"
+    if webm_path.exists():
+        return FileResponse(
+            webm_path,
+            media_type="video/webm",
+            filename=f"{safe_id}_face_blurred.webm",
+        )
+    mp4_path = PREVIEWS_DIR / f"{safe_id}_sanitized.mp4"
+    if mp4_path.exists():
+        return FileResponse(
+            mp4_path,
+            media_type="video/mp4",
+            filename=f"{safe_id}_face_blurred.mp4",
+        )
+    raise HTTPException(status_code=404, detail="Face-blurred incident preview not found.")
 
 
 @app.post("/benchmark")

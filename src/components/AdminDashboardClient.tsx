@@ -48,17 +48,17 @@ export function AdminDashboardClient() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h2 className="font-heading text-xl font-semibold text-[#F8F2F7]">
+          <h2 className="font-heading text-xl font-semibold text-[#2B1324]">
             Governance &amp; Audit Overview
           </h2>
-          <p className="text-sm text-[#A99CAF]">
+          <p className="text-sm text-[#7A566E]">
             Approve community volunteers before enabling geospatial alert
             eligibility. Demo verifications are clearly labeled.
           </p>
         </div>
         <Link
           href="/admin/volunteers"
-          className="inline-flex items-center gap-2 rounded-lg bg-[#D946A8] px-4 py-2.5 text-xs font-semibold text-white hover:bg-[#c13592] transition-colors"
+          className="inline-flex items-center gap-2 rounded-lg bg-[#DB2777] px-4 py-2.5 text-xs font-semibold text-white hover:bg-[#BE185D] transition-colors"
         >
           Open Verification Queue
           <ArrowRight className="h-4 w-4" />
@@ -66,65 +66,65 @@ export function AdminDashboardClient() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <div className="rounded-xl bg-[#211829] border border-[#3D2B35] p-5">
-          <div className="flex items-center justify-between text-xs text-[#A99CAF]">
+        <div className="rounded-xl bg-white border border-[#F3D5E5] p-5">
+          <div className="flex items-center justify-between text-xs text-[#7A566E]">
             <span>Total Registered Volunteers</span>
-            <Users className="h-4 w-4 text-[#BEA3E4]" />
+            <Users className="h-4 w-4 text-[#DB2777]" />
           </div>
-          <div className="mt-2 font-heading text-2xl font-semibold text-[#F8F2F7] tabular-nums">
+          <div className="mt-2 font-heading text-2xl font-semibold text-[#2B1324] tabular-nums">
             {volunteers.length}
           </div>
         </div>
 
-        <div className="rounded-xl bg-[#211829] border border-[#3D2B35] p-5">
-          <div className="flex items-center justify-between text-xs text-[#A99CAF]">
+        <div className="rounded-xl bg-white border border-[#F3D5E5] p-5">
+          <div className="flex items-center justify-between text-xs text-[#7A566E]">
             <span>Verified &amp; Alert-Eligible</span>
-            <CheckCircle2 className="h-4 w-4 text-[#4EDEA3]" />
+            <CheckCircle2 className="h-4 w-4 text-emerald-600" />
           </div>
-          <div className="mt-2 font-heading text-2xl font-semibold text-[#F8F2F7] tabular-nums">
+          <div className="mt-2 font-heading text-2xl font-semibold text-[#2B1324] tabular-nums">
             {verifiedCount}
           </div>
         </div>
 
-        <div className="rounded-xl bg-[#211829] border border-[#3D2B35] p-5">
-          <div className="flex items-center justify-between text-xs text-[#A99CAF]">
+        <div className="rounded-xl bg-white border border-[#F3D5E5] p-5">
+          <div className="flex items-center justify-between text-xs text-[#7A566E]">
             <span>Pending Verification Review</span>
-            <Clock className="h-4 w-4 text-[#FFB95F]" />
+            <Clock className="h-4 w-4 text-amber-600" />
           </div>
-          <div className="mt-2 font-heading text-2xl font-semibold text-[#F8F2F7] tabular-nums">
+          <div className="mt-2 font-heading text-2xl font-semibold text-[#2B1324] tabular-nums">
             {pendingCount}
           </div>
         </div>
       </div>
 
-      <div className="rounded-xl bg-[#211829] border border-[#3D2B35] p-6 space-y-4">
+      <div className="rounded-xl bg-white border border-[#F3D5E5] p-6 space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="font-heading text-base font-semibold flex items-center gap-2 text-[#F8F2F7]">
-            <Activity className="h-4 w-4 text-[#D946A8]" />
+          <h3 className="font-heading text-base font-semibold flex items-center gap-2 text-[#2B1324]">
+            <Activity className="h-4 w-4 text-[#DB2777]" />
             Recent Security &amp; Governance Audit Logs
           </h3>
-          <Shield className="h-4 w-4 text-[#A99CAF]" />
+          <Shield className="h-4 w-4 text-[#7A566E]" />
         </div>
 
         <div className="space-y-2 max-h-[380px] overflow-y-auto pr-1">
           {logs.length === 0 ? (
-            <p className="text-xs text-[#A99CAF]">No audit logs recorded.</p>
+            <p className="text-xs text-[#7A566E]">No audit logs recorded.</p>
           ) : (
             logs.slice(0, 20).map((log, i) => (
               <div
                 key={log._id || i}
-                className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-[#3D2B35] bg-[#241C2E] px-4 py-2.5 text-xs"
+                className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-[#F3D5E5] bg-[#FFF7FA] px-4 py-2.5 text-xs"
               >
                 <div className="flex items-center gap-2.5">
-                  <FileText className="h-3.5 w-3.5 text-[#BEA3E4]" />
-                  <span className="font-mono font-semibold text-[#FFAEDA]">
+                  <FileText className="h-3.5 w-3.5 text-[#DB2777]" />
+                  <span className="font-mono font-semibold text-[#DB2777]">
                     {log.action}
                   </span>
-                  <span className="text-[#A99CAF]">
+                  <span className="text-[#7A566E]">
                     ({log.resourceType}: {log.resourceId})
                   </span>
                 </div>
-                <div className="font-mono text-[11px] text-[#A99CAF] tabular-nums">
+                <div className="font-mono text-[11px] text-[#7A566E] tabular-nums">
                   {log.actorRole} •{" "}
                   {new Date(log.timestamp).toLocaleTimeString()}
                 </div>

@@ -131,65 +131,65 @@ export function AdminVolunteersClient() {
         aria-label="Verification summary"
         className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 items-stretch"
       >
-        <article className="h-full bg-[#211829] border border-[#3D2B35] rounded-xl p-4 flex flex-col justify-between gap-2">
+        <article className="h-full bg-white border border-[#F3D5E5] rounded-xl p-4 flex flex-col justify-between gap-2">
           <header className="flex items-center justify-between gap-2">
-            <h2 className="text-xs font-medium text-[#A99CAF]">Pending review</h2>
-            <Hourglass className="h-[18px] w-[18px] text-[#FFB95F]" />
+            <h2 className="text-xs font-medium text-[#7A566E]">Pending review</h2>
+            <Hourglass className="h-[18px] w-[18px] text-amber-600" />
           </header>
           <div className="flex items-center justify-between gap-2">
-            <p className="font-heading text-2xl font-semibold text-[#F8F2F7] tabular-nums">
+            <p className="font-heading text-2xl font-semibold text-[#2B1324] tabular-nums">
               {pendingCount}
             </p>
-            <span className="text-xs text-[#FFB95F]">Awaiting triage</span>
+            <span className="text-xs text-amber-600">Awaiting triage</span>
           </div>
         </article>
 
-        <article className="h-full bg-[#211829] border border-[#3D2B35] rounded-xl p-4 flex flex-col justify-between gap-2">
+        <article className="h-full bg-white border border-[#F3D5E5] rounded-xl p-4 flex flex-col justify-between gap-2">
           <header className="flex items-center justify-between gap-2">
-            <h2 className="text-xs font-medium text-[#A99CAF]">Under review</h2>
-            <FileCheck2 className="h-[18px] w-[18px] text-[#BEA3E4]" />
+            <h2 className="text-xs font-medium text-[#7A566E]">Under review</h2>
+            <FileCheck2 className="h-[18px] w-[18px] text-[#DB2777]" />
           </header>
           <div className="flex items-center justify-between gap-2">
-            <p className="font-heading text-2xl font-semibold text-[#F8F2F7] tabular-nums">
+            <p className="font-heading text-2xl font-semibold text-[#2B1324] tabular-nums">
               {underReviewCount}
             </p>
-            <span className="text-xs text-[#A99CAF]">Assigned</span>
+            <span className="text-xs text-[#7A566E]">Assigned</span>
           </div>
         </article>
 
-        <article className="h-full bg-[#211829] border border-[#3D2B35] rounded-xl p-4 flex flex-col justify-between gap-2">
+        <article className="h-full bg-white border border-[#F3D5E5] rounded-xl p-4 flex flex-col justify-between gap-2">
           <header className="flex items-center justify-between gap-2">
-            <h2 className="text-xs font-medium text-[#A99CAF]">
+            <h2 className="text-xs font-medium text-[#7A566E]">
               Verified volunteers
             </h2>
-            <BadgeCheck className="h-[18px] w-[18px] text-[#4EDEA3]" />
+            <BadgeCheck className="h-[18px] w-[18px] text-emerald-600" />
           </header>
           <div className="flex items-center justify-between gap-2">
-            <p className="font-heading text-2xl font-semibold text-[#F8F2F7] tabular-nums">
+            <p className="font-heading text-2xl font-semibold text-[#2B1324] tabular-nums">
               {verifiedCount}
             </p>
-            <span className="text-xs text-[#4EDEA3]">Alert eligible</span>
+            <span className="text-xs text-emerald-600">Alert eligible</span>
           </div>
         </article>
 
-        <article className="h-full bg-[#211829] border border-[#3D2B35] rounded-xl p-4 flex flex-col justify-between gap-2">
+        <article className="h-full bg-white border border-[#F3D5E5] rounded-xl p-4 flex flex-col justify-between gap-2">
           <header className="flex items-center justify-between gap-2">
-            <h2 className="text-xs font-medium text-[#A99CAF]">
+            <h2 className="text-xs font-medium text-[#7A566E]">
               Rejected applications
             </h2>
-            <XCircle className="h-[18px] w-[18px] text-[#FFB4AB]" />
+            <XCircle className="h-[18px] w-[18px] text-rose-600" />
           </header>
           <div className="flex items-center justify-between gap-2">
-            <p className="font-heading text-2xl font-semibold text-[#F8F2F7] tabular-nums">
+            <p className="font-heading text-2xl font-semibold text-[#2B1324] tabular-nums">
               {rejectedCount}
             </p>
-            <span className="text-xs text-[#A99CAF]">Ineligible</span>
+            <span className="text-xs text-[#7A566E]">Ineligible</span>
           </div>
         </article>
       </section>
 
-      <div className="rounded-xl border border-[#653E00] bg-[#653E00]/30 px-4 py-3 text-xs text-[#FFDDB8] flex items-center gap-2">
-        <ShieldAlert className="h-4 w-4 shrink-0 text-[#FFB95F]" />
+      <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-800 flex items-center gap-2">
+        <ShieldAlert className="h-4 w-4 shrink-0 text-amber-600" />
         <span>
           <strong>Prototype Verification Notice:</strong> Document references
           below are hackathon demonstration placeholders. No real criminal
@@ -198,7 +198,7 @@ export function AdminVolunteersClient() {
       </div>
 
       {feedback && (
-        <div className="rounded-xl border border-[#005236] bg-[#005236]/50 px-4 py-3 text-xs font-medium text-[#6FFBBE]">
+        <div className="rounded-xl border border-emerald-200 bg-emerald-50/50 px-4 py-3 text-xs font-medium text-emerald-700">
           {feedback}
         </div>
       )}
@@ -211,7 +211,7 @@ export function AdminVolunteersClient() {
         <div
           role="group"
           aria-label="Status filter"
-          className="inline-flex flex-wrap rounded-lg bg-[#211829] p-1 border border-[#3D2B35] gap-1"
+          className="inline-flex flex-wrap rounded-lg bg-white p-1 border border-[#F3D5E5] gap-1"
         >
           {filters.map((opt) => {
             const active = filter === opt;
@@ -222,8 +222,8 @@ export function AdminVolunteersClient() {
                 onClick={() => setFilter(opt)}
                 className={`px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-colors cursor-pointer ${
                   active
-                    ? "bg-[#38203F] text-[#EDDCFF]"
-                    : "text-[#A99CAF] hover:text-[#F8F2F7]"
+                    ? "bg-[#FCE7F3] text-[#2B1324]"
+                    : "text-[#7A566E] hover:text-[#2B1324]"
                 }`}
               >
                 {opt}
@@ -233,13 +233,13 @@ export function AdminVolunteersClient() {
         </div>
 
         <div className="relative w-full sm:w-72">
-          <Search className="h-4 w-4 text-[#A99CAF] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <Search className="h-4 w-4 text-[#7A566E] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
             type="search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search ID, name, or area..."
-            className="w-full pl-9 pr-3 py-2 rounded-lg bg-[#211829] border border-[#3D2B35] text-sm text-[#F8F2F7] placeholder-[#A99CAF] focus:outline-none focus:border-[#BEA3E4]"
+            className="w-full pl-9 pr-3 py-2 rounded-lg bg-white border border-[#F3D5E5] text-sm text-[#2B1324] placeholder-[#A99CAF] focus:outline-none focus:border-[#BEA3E4]"
           />
         </div>
       </section>
@@ -247,30 +247,30 @@ export function AdminVolunteersClient() {
       {/* Verification Table (Stitch Design) */}
       <section
         aria-label="Applicant verification table"
-        className="w-full rounded-xl border border-[#3D2B35] bg-[#211829] overflow-x-auto"
+        className="w-full rounded-xl border border-[#F3D5E5] bg-white overflow-x-auto"
       >
         <table className="w-full text-left border-collapse">
-          <thead className="bg-[#241C2E] border-b border-[#3D2B35]">
+          <thead className="bg-[#FFF7FA] border-b border-[#F3D5E5]">
             <tr>
-              <th className="px-4 py-3 text-xs font-medium text-[#A99CAF] whitespace-nowrap">
+              <th className="px-4 py-3 text-xs font-medium text-[#7A566E] whitespace-nowrap">
                 Applicant ID
               </th>
-              <th className="px-4 py-3 text-xs font-medium text-[#A99CAF] whitespace-nowrap">
+              <th className="px-4 py-3 text-xs font-medium text-[#7A566E] whitespace-nowrap">
                 Applicant name
               </th>
-              <th className="px-4 py-3 text-xs font-medium text-[#A99CAF] whitespace-nowrap">
+              <th className="px-4 py-3 text-xs font-medium text-[#7A566E] whitespace-nowrap">
                 Registration date
               </th>
-              <th className="px-4 py-3 text-xs font-medium text-[#A99CAF] whitespace-nowrap">
+              <th className="px-4 py-3 text-xs font-medium text-[#7A566E] whitespace-nowrap">
                 Registered location
               </th>
-              <th className="px-4 py-3 text-xs font-medium text-[#A99CAF] whitespace-nowrap">
+              <th className="px-4 py-3 text-xs font-medium text-[#7A566E] whitespace-nowrap">
                 Document status
               </th>
-              <th className="px-4 py-3 text-xs font-medium text-[#A99CAF] whitespace-nowrap">
+              <th className="px-4 py-3 text-xs font-medium text-[#7A566E] whitespace-nowrap">
                 Verification status
               </th>
-              <th className="px-4 py-3 text-xs font-medium text-[#A99CAF] text-right whitespace-nowrap">
+              <th className="px-4 py-3 text-xs font-medium text-[#7A566E] text-right whitespace-nowrap">
                 Actions
               </th>
             </tr>
@@ -280,7 +280,7 @@ export function AdminVolunteersClient() {
               <tr>
                 <td
                   colSpan={7}
-                  className="px-4 py-8 text-center text-xs text-[#A99CAF]"
+                  className="px-4 py-8 text-center text-xs text-[#7A566E]"
                 >
                   No volunteer applications match the active filter.
                 </td>
@@ -297,28 +297,28 @@ export function AdminVolunteersClient() {
                 return (
                   <tr
                     key={row._id}
-                    className="hover:bg-[#241C2E] transition-colors"
+                    className="hover:bg-[#FFF7FA] transition-colors"
                   >
-                    <td className="px-4 py-3 text-sm text-[#BEA3E4] font-mono tabular-nums whitespace-nowrap">
+                    <td className="px-4 py-3 text-sm text-[#DB2777] font-mono tabular-nums whitespace-nowrap">
                       {row._id.toUpperCase()}
                     </td>
-                    <td className="px-4 py-3 text-sm text-[#F8F2F7]">
+                    <td className="px-4 py-3 text-sm text-[#2B1324]">
                       <div className="font-medium">
                         {row.user?.name || row.displayName}
                       </div>
                       {row.user?.accountStatus === "suspended" && (
-                        <span className="text-[11px] text-[#FFB4AB]">
+                        <span className="text-[11px] text-rose-600">
                           Suspended Account
                         </span>
                       )}
                     </td>
-                    <td className="px-4 py-3 text-sm text-[#A99CAF] tabular-nums whitespace-nowrap">
+                    <td className="px-4 py-3 text-sm text-[#7A566E] tabular-nums whitespace-nowrap">
                       {new Date(row.createdAt).toISOString().slice(0, 10)}
                     </td>
-                    <td className="px-4 py-3 text-sm text-[#A99CAF]">
+                    <td className="px-4 py-3 text-sm text-[#7A566E]">
                       {row.registeredArea}
                     </td>
-                    <td className="px-4 py-3 text-sm text-[#F8F2F7]">
+                    <td className="px-4 py-3 text-sm text-[#2B1324]">
                       {docCount > 0
                         ? `${docCount} Placeholder Doc(s)`
                         : "Demo Record"}
@@ -333,7 +333,7 @@ export function AdminVolunteersClient() {
                           setActiveRow(row);
                           setReviewNotes(row.application?.reviewNotes || "");
                         }}
-                        className="text-xs font-medium text-[#BEA3E4] hover:text-[#FFAEDA] transition-colors whitespace-nowrap cursor-pointer"
+                        className="text-xs font-medium text-[#DB2777] hover:text-[#DB2777] transition-colors whitespace-nowrap cursor-pointer"
                       >
                         {actionLabel}
                       </button>
@@ -349,10 +349,10 @@ export function AdminVolunteersClient() {
       {/* Interactive Admin Review Modal */}
       {activeRow && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-          <div className="w-full max-w-xl rounded-2xl border border-[#3D2B35] bg-[#211829] p-6 text-[#F8F2F7] shadow-2xl space-y-4">
-            <div className="flex items-start justify-between gap-3 border-b border-[#3D2B35] pb-3">
+          <div className="w-full max-w-xl rounded-2xl border border-[#F3D5E5] bg-white p-6 text-[#2B1324] shadow-2xl space-y-4">
+            <div className="flex items-start justify-between gap-3 border-b border-[#F3D5E5] pb-3">
               <div>
-                <div className="font-mono text-xs text-[#BEA3E4]">
+                <div className="font-mono text-xs text-[#DB2777]">
                   {activeRow._id.toUpperCase()} • {activeRow.user?.email}
                 </div>
                 <h3 className="mt-1 font-heading text-lg font-semibold">
@@ -362,22 +362,22 @@ export function AdminVolunteersClient() {
               <button
                 type="button"
                 onClick={() => setActiveRow(null)}
-                className="rounded-lg p-1 text-[#A99CAF] hover:bg-[#2F2639] hover:text-white cursor-pointer"
+                className="rounded-lg p-1 text-[#7A566E] hover:bg-[#FCE7F3] hover:text-white cursor-pointer"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2 text-xs">
-              <div className="rounded-lg bg-[#241C2E] border border-[#3D2B35] p-3">
-                <div className="text-[#A99CAF]">Registered Area</div>
+              <div className="rounded-lg bg-[#FFF7FA] border border-[#F3D5E5] p-3">
+                <div className="text-[#7A566E]">Registered Area</div>
                 <div className="mt-1 font-medium">{activeRow.registeredArea}</div>
               </div>
-              <div className="rounded-lg bg-[#241C2E] border border-[#3D2B35] p-3">
-                <div className="text-[#A99CAF]">Current Status</div>
+              <div className="rounded-lg bg-[#FFF7FA] border border-[#F3D5E5] p-3">
+                <div className="text-[#7A566E]">Current Status</div>
                 <div className="mt-1 flex items-center gap-2">
                   <VerificationBadge status={activeRow.verificationStatus} />
-                  <span className="text-[#A99CAF]">
+                  <span className="text-[#7A566E]">
                     Eligible: {activeRow.alertEligible ? "Yes" : "No"}
                   </span>
                 </div>
@@ -385,17 +385,17 @@ export function AdminVolunteersClient() {
             </div>
 
             {activeRow.application && (
-              <div className="rounded-lg bg-[#241C2E] border border-[#3D2B35] p-3 text-xs space-y-2">
-                <div className="font-medium text-[#BEA3E4]">
+              <div className="rounded-lg bg-[#FFF7FA] border border-[#F3D5E5] p-3 text-xs space-y-2">
+                <div className="font-medium text-[#DB2777]">
                   Uploaded Document References (Admin-Only Access):
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {activeRow.application.documentReferences.map((doc) => (
                     <span
                       key={doc.docId}
-                      className="inline-flex items-center gap-1.5 rounded-md border border-[#3D2B35] bg-[#160E1F] px-2.5 py-1 font-mono text-[11px]"
+                      className="inline-flex items-center gap-1.5 rounded-md border border-[#F3D5E5] bg-[#FFF7FA] px-2.5 py-1 font-mono text-[11px]"
                     >
-                      <FileCheck className="h-3.5 w-3.5 text-[#D946A8]" />
+                      <FileCheck className="h-3.5 w-3.5 text-[#DB2777]" />
                       {doc.fileName}
                     </span>
                   ))}
@@ -404,7 +404,7 @@ export function AdminVolunteersClient() {
             )}
 
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-[#A99CAF]">
+              <label className="mb-1.5 block text-xs font-medium text-[#7A566E]">
                 Administrator Review Notes
               </label>
               <textarea
@@ -412,11 +412,11 @@ export function AdminVolunteersClient() {
                 value={reviewNotes}
                 onChange={(e) => setReviewNotes(e.target.value)}
                 placeholder="Enter verification or suspension note..."
-                className="w-full rounded-lg border border-[#3D2B35] bg-[#160E1F] px-3 py-2 text-xs text-[#F8F2F7] outline-none focus:border-[#BEA3E4]"
+                className="w-full rounded-lg border border-[#F3D5E5] bg-[#FFF7FA] px-3 py-2 text-xs text-[#2B1324] outline-none focus:border-[#BEA3E4]"
               />
             </div>
 
-            <div className="flex flex-wrap items-center justify-end gap-2 pt-2 border-t border-[#3D2B35]">
+            <div className="flex flex-wrap items-center justify-end gap-2 pt-2 border-t border-[#F3D5E5]">
               <button
                 type="button"
                 disabled={busyId === activeRow.userId}
@@ -428,7 +428,7 @@ export function AdminVolunteersClient() {
                     accountStatus: "active",
                   })
                 }
-                className="inline-flex items-center gap-1.5 rounded-lg bg-[#005236] px-3.5 py-2 text-xs font-semibold text-[#6FFBBE] hover:bg-[#006b47] cursor-pointer"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-50 px-3.5 py-2 text-xs font-semibold text-emerald-700 hover:bg-[#006b47] cursor-pointer"
               >
                 <CheckCircle2 className="h-3.5 w-3.5" />
                 Approve (Verified)
@@ -444,7 +444,7 @@ export function AdminVolunteersClient() {
                     alertEligible: false,
                   })
                 }
-                className="inline-flex items-center gap-1.5 rounded-lg bg-[#38203F] px-3.5 py-2 text-xs font-semibold text-[#EDDCFF] hover:bg-[#492b52] cursor-pointer"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-[#FCE7F3] px-3.5 py-2 text-xs font-semibold text-[#2B1324] hover:bg-[#492b52] cursor-pointer"
               >
                 <Clock className="h-3.5 w-3.5" />
                 Under Review
@@ -460,7 +460,7 @@ export function AdminVolunteersClient() {
                     alertEligible: false,
                   })
                 }
-                className="inline-flex items-center gap-1.5 rounded-lg bg-[#93000A] px-3.5 py-2 text-xs font-semibold text-[#FFDAD6] hover:bg-[#b0000d] cursor-pointer"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-rose-50 px-3.5 py-2 text-xs font-semibold text-rose-700 hover:bg-[#b0000d] cursor-pointer"
               >
                 <XCircle className="h-3.5 w-3.5" />
                 Reject
@@ -483,7 +483,7 @@ export function AdminVolunteersClient() {
                     accountStatus: isSuspended ? "active" : "suspended",
                   });
                 }}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-[#3D2B35] bg-[#160E1F] px-3.5 py-2 text-xs font-semibold text-[#A99CAF] hover:text-white cursor-pointer"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-[#F3D5E5] bg-[#FFF7FA] px-3.5 py-2 text-xs font-semibold text-[#7A566E] hover:text-white cursor-pointer"
               >
                 <Ban className="h-3.5 w-3.5" />
                 {activeRow.user?.accountStatus === "suspended"

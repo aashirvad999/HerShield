@@ -1,59 +1,27 @@
 @import "tailwindcss";
 
 :root {
-  --hs-deep-plum: #160e1f;
-  --hs-surface-dim: #120b1b;
-  --hs-surface-low: #211829;
-  --hs-surface: #241c2e;
-  --hs-surface-high: #2f2639;
-  --hs-surface-highest: #3a3144;
-  --hs-dark-purple: #38203f;
-  --hs-magenta: #d946a8;
-  --hs-primary: #ffaeda;
-  --hs-lavender: #bea3e4;
-  --hs-offwhite: #f8f2f7;
-  --hs-mauve: #a99caf;
-  --hs-outline: #7e7388;
-  --hs-outline-variant: #3d2b35;
+  --hs-bg: #fff7fa;
+  --hs-surface: #ffffff;
+  --hs-surface-soft: #fdf2f8;
+  --hs-surface-tint: #fce7f3;
+  --hs-pink: #db2777;
+  --hs-pink-hover: #be185d;
+  --hs-pink-light: #f472b6;
+  --hs-text: #2b1324;
+  --hs-muted: #7a566e;
+  --hs-border: #f3d5e5;
 }
 
 @theme inline {
-  --color-deep-plum: #160e1f;
-  --color-dark-surface: #211829;
-  --color-dark-purple: #38203f;
-  --color-magenta-accent: #d946a8;
-  --color-lavender-highlight: #bea3e4;
-  --color-warm-off-white: #f8f2f7;
-  --color-muted-mauve: #a99caf;
-  --color-primary: #ffaeda;
-  --color-on-primary: #610047;
-  --color-primary-container: #d946a8;
-  --color-secondary: #bea3e4;
-  --color-on-secondary: #250d46;
-  --color-secondary-container: #38203f;
-  --color-on-secondary-container: #eddcff;
-  --color-background: #160e1f;
-  --color-on-background: #f8f2f7;
-  --color-surface: #160e1f;
-  --color-surface-dim: #120b1b;
-  --color-surface-container-lowest: #120b1b;
-  --color-surface-container-low: #211829;
-  --color-surface-container: #241c2e;
-  --color-surface-container-high: #2f2639;
-  --color-surface-container-highest: #3a3144;
-  --color-on-surface: #f8f2f7;
-  --color-on-surface-variant: #a99caf;
-  --color-outline: #7e7388;
-  --color-outline-variant: #3d2b35;
-  --color-error: #ffb4ab;
-  --color-error-container: #93000a;
-  --color-on-error-container: #ffdad6;
-  --color-success: #4edea3;
-  --color-success-container: #005236;
-  --color-on-success-container: #6ffbbe;
-  --color-warning: #ffb95f;
-  --color-warning-container: #653e00;
-  --color-on-warning-container: #ffddb8;
+  --color-background: #fff7fa;
+  --color-on-background: #2b1324;
+  --color-surface: #ffffff;
+  --color-on-surface: #2b1324;
+  --color-on-surface-variant: #7a566e;
+  --color-primary: #db2777;
+  --color-on-primary: #ffffff;
+  --color-outline-variant: #f3d5e5;
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-heading: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
@@ -61,8 +29,8 @@
 }
 
 body {
-  background-color: #160e1f;
-  color: #f8f2f7;
+  background-color: #fff7fa;
+  color: #2b1324;
   font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
@@ -77,34 +45,29 @@ h4,
 
 .hs-gradient-hero {
   background: radial-gradient(
-      950px 480px at 85% -10%,
-      rgba(217, 70, 168, 0.2),
+      900px 420px at 85% -10%,
+      rgba(236, 72, 153, 0.14),
       transparent 65%
     ),
     radial-gradient(
-      760px 420px at 10% 10%,
-      rgba(190, 163, 228, 0.14),
+      700px 380px at 10% 10%,
+      rgba(244, 114, 182, 0.12),
       transparent 60%
     ),
-    linear-gradient(160deg, #120b1b 0%, #160e1f 55%, #241c2e 100%);
+    linear-gradient(160deg, #fff5f9 0%, #ffffff 55%, #fdf2f8 100%);
 }
 
 .hs-card {
-  background-color: #211829;
-  border: 1px solid #3d2b35;
-  color: #f8f2f7;
+  background-color: #ffffff;
+  border: 1px solid #f3d5e5;
+  color: #2b1324;
+  box-shadow: 0 1px 3px rgba(219, 39, 119, 0.05);
 }
 
 .hs-surface-elevated {
-  background-color: #241c2e;
-  border: 1px solid #3d2b35;
-  color: #f8f2f7;
-}
-
-.hs-dark-card {
-  background-color: #211829;
-  border: 1px solid #3d2b35;
-  color: #f8f2f7;
+  background-color: #ffffff;
+  border: 1px solid #f3d5e5;
+  color: #2b1324;
 }
 
 ::-webkit-scrollbar {
@@ -112,12 +75,12 @@ h4,
   height: 7px;
 }
 ::-webkit-scrollbar-track {
-  background: #120b1b;
+  background: #fdf2f8;
 }
 ::-webkit-scrollbar-thumb {
-  background: #3a3144;
+  background: #f3c4dc;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #d946a8;
+  background: #db2777;
 }

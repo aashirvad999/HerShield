@@ -3,7 +3,7 @@ import { getSessionUser } from "@/lib/auth";
 import { getTelegramBotProfile } from "@/lib/telegram";
 
 export async function GET() {
-  const user = await getSessionUser();
+  const user = await getSessionUser("admin");
   if (!user || user.role !== "admin") {
     return NextResponse.json(
       { error: "Administrator access required." },
@@ -55,7 +55,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const user = await getSessionUser();
+  const user = await getSessionUser("admin");
   if (!user || user.role !== "admin") {
     return NextResponse.json(
       { error: "Administrator access required." },

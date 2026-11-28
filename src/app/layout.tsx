@@ -36,7 +36,7 @@ export default function RootLayout({
       lang="en"
       className={`${inter.variable} ${poppins.variable} ${jetbrainsMono.variable} h-full antialiased dark`}
     >
-      <body className="min-h-full flex flex-col bg-[#160E1F] text-[#F8F2F7]">
+      <body className="min-h-full flex flex-col bg-[#FFF7FA] text-[#2B1324]">
         {children}
       </body>
     </html>

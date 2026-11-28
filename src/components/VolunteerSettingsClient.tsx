@@ -113,7 +113,7 @@ export function VolunteerSettingsClient() {
 
   if (!volunteer) {
     return (
-      <div className="rounded-xl border border-[#3D2B35] bg-[#211829] p-8 text-sm text-[#A99CAF]">
+      <div className="rounded-xl border border-[#F3D5E5] bg-white p-8 text-sm text-[#7A566E]">
         Loading settings…
       </div>
     );
@@ -122,38 +122,38 @@ export function VolunteerSettingsClient() {
   return (
     <div className="max-w-3xl space-y-6">
       <div>
-        <h2 className="font-heading text-xl font-semibold text-[#F8F2F7]">
+        <h2 className="font-heading text-xl font-semibold text-[#2B1324]">
           Volunteer Profile &amp; Telegram Linking
         </h2>
-        <p className="mt-1 text-sm text-[#A99CAF]">
+        <p className="mt-1 text-sm text-[#7A566E]">
           Manage your registered usual locality and link your Telegram account
           to receive authenticated incident notifications.
         </p>
       </div>
 
       {msg && (
-        <div className="rounded-xl border border-[#005236] bg-[#005236]/50 px-4 py-3 text-xs font-medium text-[#6FFBBE]">
+        <div className="rounded-xl border border-emerald-200 bg-emerald-50/50 px-4 py-3 text-xs font-medium text-emerald-700">
           {msg}
         </div>
       )}
       {err && (
-        <div className="rounded-xl border border-[#653E00] bg-[#653E00]/40 px-4 py-3 text-xs font-medium text-[#FFDDB8]">
+        <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs font-medium text-amber-800">
           {err}
         </div>
       )}
 
       <form
         onSubmit={handleSaveArea}
-        className="rounded-xl border border-[#3D2B35] bg-[#211829] p-6 space-y-4"
+        className="rounded-xl border border-[#F3D5E5] bg-white p-6 space-y-4"
       >
         <div className="flex items-center gap-2 font-heading text-base font-semibold">
-          <MapPin className="h-4 w-4 text-[#D946A8]" />
+          <MapPin className="h-4 w-4 text-[#DB2777]" />
           Registered Usual Area (MongoDB 2dsphere)
         </div>
         <select
           value={areaPresetId}
           onChange={(e) => setAreaPresetId(e.target.value)}
-          className="w-full rounded-lg border border-[#3D2B35] bg-[#160E1F] px-3.5 py-2.5 text-sm text-[#F8F2F7] outline-none focus:border-[#BEA3E4]"
+          className="w-full rounded-lg border border-[#F3D5E5] bg-[#FFF7FA] px-3.5 py-2.5 text-sm text-[#2B1324] outline-none focus:border-[#BEA3E4]"
         >
           {DEMO_LOCATION_PRESETS.map((p) => (
             <option key={p.id} value={p.id}>
@@ -164,34 +164,34 @@ export function VolunteerSettingsClient() {
         <button
           type="submit"
           disabled={busy}
-          className="rounded-lg bg-[#D946A8] px-5 py-2.5 text-xs font-semibold text-white hover:bg-[#c13592] cursor-pointer"
+          className="rounded-lg bg-[#DB2777] px-5 py-2.5 text-xs font-semibold text-white hover:bg-[#BE185D] cursor-pointer"
         >
           Save Registered Area
         </button>
       </form>
 
-      <div className="rounded-xl border border-[#3D2B35] bg-[#211829] p-6 space-y-4">
+      <div className="rounded-xl border border-[#F3D5E5] bg-white p-6 space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 font-heading text-base font-semibold">
-            <MessageCircle className="h-4 w-4 text-[#BEA3E4]" />
+            <MessageCircle className="h-4 w-4 text-[#DB2777]" />
             Telegram Bot Notification Link
           </div>
           {volunteer.telegramChatId && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-[#005236] px-3 py-1 text-xs font-medium text-[#6FFBBE]">
+            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">
               <CheckCircle2 className="h-3.5 w-3.5" />
               Linked
             </span>
           )}
         </div>
 
-        <div className="rounded-xl bg-[#241C2E] p-4 text-xs space-y-2 border border-[#3D2B35]">
-          <p className="font-medium text-[#F8F2F7]">
+        <div className="rounded-xl bg-[#FFF7FA] p-4 text-xs space-y-2 border border-[#F3D5E5]">
+          <p className="font-medium text-[#2B1324]">
             Step 1: Open your HerShield Telegram Bot and send the command:
           </p>
-          <div className="rounded-lg bg-[#120B1B] border border-[#3D2B35] px-3.5 py-2.5 font-mono text-sm text-[#FFAEDA]">
+          <div className="rounded-lg bg-[#FDF2F8] border border-[#F3D5E5] px-3.5 py-2.5 font-mono text-sm text-[#DB2777]">
             /start {volunteer.telegramLinkCode}
           </div>
-          <p className="text-[#A99CAF]">
+          <p className="text-[#7A566E]">
             Step 2: Click &ldquo;Verify Telegram Link&rdquo; below to securely
             bind your Telegram Chat ID via the Bot API.
           </p>
@@ -203,7 +203,7 @@ export function VolunteerSettingsClient() {
               href={`https://t.me/${botUsername}?start=${volunteer.telegramLinkCode}`}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 rounded-lg bg-[#D946A8] px-4 py-2.5 text-xs font-semibold text-white hover:bg-[#c13592]"
+              className="inline-flex items-center gap-2 rounded-lg bg-[#DB2777] px-4 py-2.5 text-xs font-semibold text-white hover:bg-[#BE185D]"
             >
               <MessageCircle className="h-3.5 w-3.5" />
               Open @{botUsername} in Telegram
@@ -214,7 +214,7 @@ export function VolunteerSettingsClient() {
             type="button"
             disabled={busy}
             onClick={handleVerifyTelegramBot}
-            className="inline-flex items-center gap-2 rounded-lg border border-[#3D2B35] bg-[#38203F] px-4 py-2.5 text-xs font-semibold text-[#EDDCFF] hover:border-[#BEA3E4] cursor-pointer"
+            className="inline-flex items-center gap-2 rounded-lg border border-[#F3D5E5] bg-[#FCE7F3] px-4 py-2.5 text-xs font-semibold text-[#2B1324] hover:border-[#DB2777] cursor-pointer"
           >
             <RefreshCw className="h-3.5 w-3.5" />
             Verify Telegram Link
@@ -224,7 +224,7 @@ export function VolunteerSettingsClient() {
               type="button"
               disabled={busy}
               onClick={handleUnlink}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-[#93000A] bg-[#93000A]/30 px-4 py-2.5 text-xs font-semibold text-[#FFDAD6] hover:bg-[#93000A] cursor-pointer"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-rose-200 bg-rose-50 px-4 py-2.5 text-xs font-semibold text-rose-700 hover:bg-rose-50 cursor-pointer"
             >
               <Unlink className="h-3.5 w-3.5" />
               Unlink Telegram
@@ -234,9 +234,9 @@ export function VolunteerSettingsClient() {
 
         <form
           onSubmit={handleSaveManualChatId}
-          className="border-t border-[#3D2B35] pt-4 space-y-2"
+          className="border-t border-[#F3D5E5] pt-4 space-y-2"
         >
-          <label className="block text-xs font-medium text-[#A99CAF]">
+          <label className="block text-xs font-medium text-[#7A566E]">
             Or enter Telegram Chat ID directly (for hackathon demo testing):
           </label>
           <div className="flex gap-2">
@@ -245,12 +245,12 @@ export function VolunteerSettingsClient() {
               value={manualChatId}
               onChange={(e) => setManualChatId(e.target.value)}
               placeholder="e.g., 123456789"
-              className="flex-1 rounded-lg border border-[#3D2B35] bg-[#160E1F] px-3 py-2 font-mono text-xs text-[#F8F2F7] outline-none focus:border-[#BEA3E4]"
+              className="flex-1 rounded-lg border border-[#F3D5E5] bg-[#FFF7FA] px-3 py-2 font-mono text-xs text-[#2B1324] outline-none focus:border-[#BEA3E4]"
             />
             <button
               type="submit"
               disabled={busy}
-              className="rounded-lg bg-[#38203F] border border-[#3D2B35] px-4 py-2 text-xs font-semibold text-[#EDDCFF] hover:bg-[#D946A8] hover:text-white cursor-pointer"
+              className="rounded-lg bg-[#FCE7F3] border border-[#F3D5E5] px-4 py-2 text-xs font-semibold text-[#2B1324] hover:bg-[#DB2777] hover:text-white cursor-pointer"
             >
               Save Chat ID
             </button>

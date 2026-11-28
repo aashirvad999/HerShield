@@ -7,7 +7,7 @@ export async function requirePortalSession(
   allowedRoles: UserRole[],
   loginPath: string
 ): Promise<SessionPayload> {
-  const user = await getSessionUser();
+  const user = await getSessionUser(allowedRoles[0]);
   if (!user || !allowedRoles.includes(user.role)) {
     redirect(loginPath);
   }

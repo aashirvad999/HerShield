@@ -13,7 +13,7 @@ import type {
 } from "@/lib/types";
 
 export async function GET() {
-  const user = await getSessionUser();
+  const user = await getSessionUser("admin");
   if (!user || user.role !== "admin") {
     return NextResponse.json(
       { error: "Administrator access required." },
@@ -72,7 +72,7 @@ export async function GET() {
 }
 
 export async function PATCH(request: Request) {
-  const user = await getSessionUser();
+  const user = await getSessionUser("admin");
   if (!user || user.role !== "admin") {
     return NextResponse.json(
       { error: "Administrator access required." },

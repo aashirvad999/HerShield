@@ -19,22 +19,22 @@ async function AdminSettingsInner() {
     >
       <div className="max-w-4xl space-y-6">
         <div>
-          <h2 className="font-heading text-xl font-semibold text-[#F8F2F7]">
+          <h2 className="font-heading text-xl font-semibold text-[#2B1324]">
             Administrative Security &amp; Integration Settings
           </h2>
-          <p className="mt-1 text-sm text-[#A99CAF]">
+          <p className="mt-1 text-sm text-[#7A566E]">
             Server-side environment status (secrets are never exposed to client
             bundles).
           </p>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
-          <div className="rounded-xl border border-[#3D2B35] bg-[#211829] p-5 space-y-2">
+          <div className="rounded-xl border border-[#F3D5E5] bg-white p-5 space-y-2">
             <div className="flex items-center gap-2 font-heading text-sm font-semibold">
-              <Database className="h-4 w-4 text-[#4EDEA3]" />
+              <Database className="h-4 w-4 text-emerald-600" />
               MongoDB Atlas Integration
             </div>
-            <p className="text-xs text-[#F8F2F7]">
+            <p className="text-xs text-[#2B1324]">
               Status:{" "}
               <strong>
                 {mongoConfigured
@@ -42,19 +42,19 @@ async function AdminSettingsInner() {
                   : "Not Configured (Fallback Mode)"}
               </strong>
             </p>
-            <p className="text-xs text-[#A99CAF]">
+            <p className="text-xs text-[#7A566E]">
               Indexes enforced: unique email, GeoJSON{" "}
               <code>2dsphere</code> on volunteer registeredLocation, and
               incident timestamps.
             </p>
           </div>
 
-          <div className="rounded-xl border border-[#3D2B35] bg-[#211829] p-5 space-y-2">
+          <div className="rounded-xl border border-[#F3D5E5] bg-white p-5 space-y-2">
             <div className="flex items-center gap-2 font-heading text-sm font-semibold">
-              <MessageCircle className="h-4 w-4 text-[#BEA3E4]" />
+              <MessageCircle className="h-4 w-4 text-[#DB2777]" />
               Telegram Bot API
             </div>
-            <p className="text-xs text-[#F8F2F7]">
+            <p className="text-xs text-[#2B1324]">
               Status:{" "}
               <strong>
                 {telegramConfigured
@@ -62,30 +62,30 @@ async function AdminSettingsInner() {
                   : "Token Not Set (Safe Error Tracking Active)"}
               </strong>
             </p>
-            <p className="text-xs text-[#A99CAF]">
+            <p className="text-xs text-[#7A566E]">
               Bot token stays strictly in server environment variables (
               <code>TELEGRAM_BOT_TOKEN</code>).
             </p>
           </div>
 
-          <div className="rounded-xl border border-[#3D2B35] bg-[#211829] p-5 space-y-2">
+          <div className="rounded-xl border border-[#F3D5E5] bg-white p-5 space-y-2">
             <div className="flex items-center gap-2 font-heading text-sm font-semibold">
-              <KeyRound className="h-4 w-4 text-[#D946A8]" />
+              <KeyRound className="h-4 w-4 text-[#DB2777]" />
               Role-Based Access Control
             </div>
-            <p className="text-xs text-[#A99CAF]">
+            <p className="text-xs text-[#7A566E]">
               HTTP-only signed JWT cookies enforce <code>operator</code>,{" "}
               <code>volunteer</code>, and <code>admin</code> access on every
               Server Component and API route handler.
             </p>
           </div>
 
-          <div className="rounded-xl border border-[#3D2B35] bg-[#211829] p-5 space-y-2">
+          <div className="rounded-xl border border-[#F3D5E5] bg-white p-5 space-y-2">
             <div className="flex items-center gap-2 font-heading text-sm font-semibold">
-              <Shield className="h-4 w-4 text-[#FFB95F]" />
+              <Shield className="h-4 w-4 text-amber-600" />
               PrivacyShield &amp; Document Protection
             </div>
-            <p className="text-xs text-[#A99CAF]">
+            <p className="text-xs text-[#7A566E]">
               Uploaded verification documents are restricted to Admin endpoints
               and never returned to ordinary volunteer profiles or public routes.
             </p>

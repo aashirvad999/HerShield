@@ -51,12 +51,12 @@ export function OperatorLocationsClient() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="font-heading text-xl font-semibold text-[#F8F2F7]">
+        <h2 className="font-heading text-xl font-semibold text-[#2B1324]">
           Location &amp; Geospatial Volunteer Selection
         </h2>
-        <p className="mt-1 text-sm text-[#A99CAF]">
+        <p className="mt-1 text-sm text-[#7A566E]">
           Switch the incident zone and observe how MongoDB{" "}
-          <code className="rounded bg-[#38203F] px-1 text-[#EDDCFF]">
+          <code className="rounded bg-[#FCE7F3] px-1 text-[#2B1324]">
             2dsphere
           </code>{" "}
           updates eligible verified volunteers based on registered usual areas.
@@ -64,9 +64,9 @@ export function OperatorLocationsClient() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-12">
-        <div className="rounded-xl border border-[#3D2B35] bg-[#211829] p-5 space-y-4 lg:col-span-5">
+        <div className="rounded-xl border border-[#F3D5E5] bg-white p-5 space-y-4 lg:col-span-5">
           <h3 className="font-heading text-base font-semibold flex items-center gap-2">
-            <MapPin className="h-4 w-4 text-[#D946A8]" />
+            <MapPin className="h-4 w-4 text-[#DB2777]" />
             Select Demonstration Incident Zone
           </h3>
 
@@ -80,19 +80,19 @@ export function OperatorLocationsClient() {
                   onClick={() => setPresetId(p.id)}
                   className={`w-full rounded-lg border p-3.5 text-left transition cursor-pointer ${
                     active
-                      ? "border-[#D946A8] bg-[#38203F]"
-                      : "border-[#3D2B35] bg-[#241C2E] hover:border-[#BEA3E4]"
+                      ? "border-[#D946A8] bg-[#FCE7F3]"
+                      : "border-[#F3D5E5] bg-[#FFF7FA] hover:border-[#DB2777]"
                   }`}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="font-semibold text-sm text-[#F8F2F7]">
+                    <span className="font-semibold text-sm text-[#2B1324]">
                       {p.areaName}
                     </span>
-                    <span className="font-mono text-[11px] text-[#BEA3E4] tabular-nums">
+                    <span className="font-mono text-[11px] text-[#DB2777] tabular-nums">
                       {p.lat.toFixed(4)}, {p.lng.toFixed(4)}
                     </span>
                   </div>
-                  <div className="mt-0.5 text-xs text-[#A99CAF]">
+                  <div className="mt-0.5 text-xs text-[#7A566E]">
                     {p.approxLabel}
                   </div>
                 </button>
@@ -101,7 +101,7 @@ export function OperatorLocationsClient() {
           </div>
 
           <div className="pt-2">
-            <label className="mb-1 block text-xs font-medium text-[#A99CAF]">
+            <label className="mb-1 block text-xs font-medium text-[#7A566E]">
               Geospatial Search Radius: {(maxDistance / 1000).toFixed(1)} km
             </label>
             <input
@@ -116,30 +116,30 @@ export function OperatorLocationsClient() {
           </div>
         </div>
 
-        <div className="rounded-xl border border-[#3D2B35] bg-[#211829] p-5 space-y-4 lg:col-span-7">
+        <div className="rounded-xl border border-[#F3D5E5] bg-white p-5 space-y-4 lg:col-span-7">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div>
               <h3 className="font-heading text-base font-semibold flex items-center gap-2">
-                <Users className="h-4 w-4 text-[#BEA3E4]" />
+                <Users className="h-4 w-4 text-[#DB2777]" />
                 Eligible Recipients near {selectedPreset.areaName}
               </h3>
-              <p className="text-xs text-[#A99CAF]">
+              <p className="text-xs text-[#7A566E]">
                 {excludedCount} unverified/ineligible record(s) excluded by
                 server policy.
               </p>
             </div>
-            <span className="inline-flex items-center gap-1 rounded-full bg-[#005236] px-3 py-1 text-xs font-medium text-[#6FFBBE]">
+            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">
               <ShieldCheck className="h-3.5 w-3.5" />
               {volunteers.length} Eligible
             </span>
           </div>
 
           {loading ? (
-            <p className="text-xs text-[#A99CAF]">
+            <p className="text-xs text-[#7A566E]">
               Querying geospatial volunteer records…
             </p>
           ) : volunteers.length === 0 ? (
-            <div className="rounded-lg border border-dashed border-[#3D2B35] p-6 text-center text-xs text-[#A99CAF]">
+            <div className="rounded-lg border border-dashed border-[#F3D5E5] p-6 text-center text-xs text-[#7A566E]">
               No verified volunteers registered within{" "}
               {(maxDistance / 1000).toFixed(1)} km of {selectedPreset.areaName}.
             </div>
@@ -148,24 +148,24 @@ export function OperatorLocationsClient() {
               {volunteers.map((v) => (
                 <div
                   key={v._id}
-                  className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[#3D2B35] bg-[#241C2E] p-4"
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[#F3D5E5] bg-[#FFF7FA] p-4"
                 >
                   <div>
-                    <div className="font-semibold text-sm text-[#F8F2F7]">
+                    <div className="font-semibold text-sm text-[#2B1324]">
                       {v.displayName}
                     </div>
-                    <div className="text-xs text-[#A99CAF]">
+                    <div className="text-xs text-[#7A566E]">
                       Registered Area: {v.registeredArea}
                     </div>
                     <div className="mt-1.5 flex flex-wrap gap-1.5 text-[11px]">
-                      <span className="rounded-full bg-[#005236] px-2.5 py-0.5 font-medium text-[#6FFBBE]">
+                      <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 font-medium text-emerald-700">
                         {v.verificationStatus}
                       </span>
                       <span
                         className={`rounded-full px-2.5 py-0.5 font-medium ${
                           v.telegramLinked
-                            ? "bg-[#38203F] text-[#EDDCFF]"
-                            : "bg-[#2F2639] text-[#A99CAF]"
+                            ? "bg-[#FCE7F3] text-[#2B1324]"
+                            : "bg-[#FCE7F3] text-[#7A566E]"
                         }`}
                       >
                         {v.telegramLinked
@@ -175,10 +175,10 @@ export function OperatorLocationsClient() {
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="font-mono text-sm font-bold text-[#FFAEDA] tabular-nums">
+                    <div className="font-mono text-sm font-bold text-[#DB2777] tabular-nums">
                       {v.approxDistanceText}
                     </div>
-                    <div className="text-[11px] text-[#A99CAF]">
+                    <div className="text-[11px] text-[#7A566E]">
                       Approximate distance
                     </div>
                   </div>

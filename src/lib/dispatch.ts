@@ -14,12 +14,26 @@ import type {
 } from "./types";
 
 export const AUTO_DISPATCH_RISK_THRESHOLD = 75;
+export const VOLUNTEER_NOTIFICATION_COOLDOWN_MS = 60 * 1000; // 1 minute minimum cooldown
+
+declare global {
+  var _herShieldVolunteerLastAlertAt: Map<string, number> | undefined;
+}
+
+function getCooldownMap(): Map<string, number> {
+  if (!globalThis._herShieldVolunteerLastAlertAt) {
+    globalThis._herShieldVolunteerLastAlertAt = new Map<string, number>();
+  }
+  return globalThis._herShieldVolunteerLastAlertAt;
+}
 
 export interface DispatchResult {
   ok: boolean;
   error?: string;
   dispatchedCount: number;
   telegramSentCount: number;
+  cooldownSkippedCount?: number;
+  alreadyNotifiedCount?: number;
   notifications: IncidentNotificationDoc[];
   updatedIncident?: IncidentDoc;
 }
@@ -100,10 +114,73 @@ export async function dispatchIncidentAlerts(params: {
     };
   }
 
-  const now = new Date().toISOString();
+  const nowMs = Date.now();
+  const now = new Date(nowMs).toISOString();
+  const cooldownMap = getCooldownMap();
   const createdNotifications: IncidentNotificationDoc[] = [];
+  let alreadyNotifiedCount = 0;
+  let cooldownSkippedCount = 0;
+  let maxRemainingCooldownSec = 0;
 
   for (const vol of recipients) {
+    // 1. Send notification to a volunteer at most ONCE per incident
+    let existingForIncident: IncidentNotificationDoc | null = null;
+    if (ctx.db) {
+      existingForIncident = await ctx.db
+        .collection<IncidentNotificationDoc>("incidentNotifications")
+        .findOne({ incidentId: incident.incidentId, volunteerId: vol._id });
+    } else if (ctx.fallback) {
+      existingForIncident =
+        ctx.fallback.incidentNotifications.find(
+          (n) =>
+            n.incidentId === incident.incidentId && n.volunteerId === vol._id
+        ) || null;
+    }
+
+    if (existingForIncident) {
+      alreadyNotifiedCount += 1;
+      continue;
+    }
+
+    // 2. Enforce at least 1-minute (60s) cooldown per volunteer across incidents
+    let lastAlertMs = cooldownMap.get(vol._id) ?? 0;
+    if (ctx.db) {
+      const latestNotif = await ctx.db
+        .collection<IncidentNotificationDoc>("incidentNotifications")
+        .find({ volunteerId: vol._id })
+        .sort({ notificationSentAt: -1 })
+        .limit(1)
+        .next();
+      if (latestNotif?.notificationSentAt) {
+        const ts = Date.parse(latestNotif.notificationSentAt);
+        if (!Number.isNaN(ts)) {
+          lastAlertMs = Math.max(lastAlertMs, ts);
+        }
+      }
+    } else if (ctx.fallback) {
+      for (const n of ctx.fallback.incidentNotifications) {
+        if (n.volunteerId === vol._id && n.notificationSentAt) {
+          const ts = Date.parse(n.notificationSentAt);
+          if (!Number.isNaN(ts)) {
+            lastAlertMs = Math.max(lastAlertMs, ts);
+          }
+        }
+      }
+    }
+
+    const elapsedMs = nowMs - lastAlertMs;
+    if (lastAlertMs > 0 && elapsedMs < VOLUNTEER_NOTIFICATION_COOLDOWN_MS) {
+      cooldownSkippedCount += 1;
+      const remSec = Math.ceil(
+        (VOLUNTEER_NOTIFICATION_COOLDOWN_MS - elapsedMs) / 1000
+      );
+      maxRemainingCooldownSec = Math.max(maxRemainingCooldownSec, remSec);
+      continue;
+    }
+
+    // Claim cooldown slot before async send to prevent concurrent double-sends
+    cooldownMap.set(vol._id, nowMs);
+
     const approxDistanceText = formatApproxDistance(vol.distanceMeters);
     const tgResult = await sendVolunteerIncidentAlert({
       chatId: vol.telegramChatId,
@@ -146,6 +223,38 @@ export async function dispatchIncidentAlerts(params: {
     }
 
     createdNotifications.push(notifDoc);
+  }
+
+  if (createdNotifications.length === 0) {
+    const reason =
+      cooldownSkippedCount > 0
+        ? `Volunteer notification cooldown active (${maxRemainingCooldownSec}s remaining of 60s minimum cooldown).`
+        : "Selected volunteer(s) were already notified for this incident.";
+
+    if (params.isAutoDispatch) {
+      if (ctx.db) {
+        await ctx.db
+          .collection<IncidentDoc>("incidents")
+          .updateOne(
+            { incidentId: params.incidentId },
+            { $set: { autoDispatchNote: reason, updatedAt: now } }
+          );
+      } else if (ctx.fallback) {
+        incident.autoDispatchNote = reason;
+        persistFallbackStore();
+      }
+    }
+
+    return {
+      ok: Boolean(params.isAutoDispatch),
+      error: params.isAutoDispatch ? undefined : reason,
+      dispatchedCount: 0,
+      telegramSentCount: 0,
+      cooldownSkippedCount,
+      alreadyNotifiedCount,
+      notifications: [],
+      updatedIncident: incident,
+    };
   }
 
   const telegramSentCount = createdNotifications.filter(
@@ -201,6 +310,8 @@ export async function dispatchIncidentAlerts(params: {
     ok: true,
     dispatchedCount: createdNotifications.length,
     telegramSentCount,
+    cooldownSkippedCount,
+    alreadyNotifiedCount,
     notifications: createdNotifications,
     updatedIncident: { ...incident, ...patchFields },
   };

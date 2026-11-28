@@ -81,11 +81,53 @@ export async function verifySessionToken(
   }
 }
 
-export async function getSessionUser(): Promise<SessionPayload | null> {
+export function isLoginDisabled(): boolean {
+  const val = process.env.DISABLE_LOGIN?.trim().toLowerCase();
+  return val === "true" || val === "1" || val === "yes";
+}
+
+export function getLocalBypassUser(role: UserRole = "operator"): SessionPayload {
+  if (role === "admin") {
+    return {
+      userId: "user-admin-demo",
+      email: "admin@hershield.demo",
+      name: "Admin Portal (Local)",
+      role: "admin",
+    };
+  }
+  if (role === "volunteer") {
+    return {
+      userId: "user-vol-ananya",
+      email: "ananya.demo@hershield.demo",
+      name: "Ananya Sharma (Local)",
+      role: "volunteer",
+    };
+  }
+  return {
+    userId: "user-operator-demo",
+    email: "operator@hershield.demo",
+    name: "Operator Console (Local)",
+    role: "operator",
+  };
+}
+
+export async function getSessionUser(
+  preferredRole?: UserRole
+): Promise<SessionPayload | null> {
   const cookieStore = await cookies();
   const token = cookieStore.get(SESSION_COOKIE_NAME)?.value;
-  if (!token) return null;
-  return verifySessionToken(token);
+  if (token) {
+    const verified = await verifySessionToken(token);
+    if (verified) {
+      if (!preferredRole || verified.role === preferredRole || !isLoginDisabled()) {
+        return verified;
+      }
+    }
+  }
+  if (isLoginDisabled()) {
+    return getLocalBypassUser(preferredRole ?? "operator");
+  }
+  return null;
 }
 
 export async function setSessionCookie(token: string): Promise<void> {

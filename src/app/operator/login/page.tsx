@@ -1,7 +1,12 @@
+import { redirect } from "next/navigation";
 import { LoginForm } from "@/components/LoginForm";
+import { isLoginDisabled } from "@/lib/auth";
 import { DEMO_PASSWORDS } from "@/lib/seed-data";
 
 export default function OperatorLoginPage() {
+  if (isLoginDisabled()) {
+    redirect("/operator");
+  }
   return (
     <LoginForm
       portalTitle="Operator Console Sign In"
