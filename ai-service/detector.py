@@ -141,6 +141,7 @@ class HerShieldDetector:
         self.last_toggle_at: float = -1e9
         self.resume_grace_until: float = 0.0
         self.palm_cooldown_active: bool = False
+        self.paused_reason: str = ""
         self.active_collapse_timer: Dict[str, Any] = {
             "active": False,
             "trackId": None,
@@ -201,6 +202,7 @@ class HerShieldDetector:
         self.last_toggle_at = -1e9
         self.resume_grace_until = 0.0
         self.palm_cooldown_active = False
+        self.paused_reason = ""
 
     def _is_camera_covered_by_palm(self, frame: np.ndarray) -> bool:
         """Detects when the camera lens is blacked out or occluded by a palm."""
@@ -270,8 +272,10 @@ class HerShieldDetector:
                         self.detection_enabled = not self.detection_enabled
                         self.last_toggle_at = now
                         if self.detection_enabled:
+                            self.paused_reason = ""
                             self.resume_grace_until = now + 1.5
                         else:
+                            self.paused_reason = "palm"
                             self._clear_tracking_state()
 
         if self.palm_covered or not self.detection_enabled or now < self.resume_grace_until:
@@ -281,8 +285,12 @@ class HerShieldDetector:
                 banner = f"PALM DETECTED - Remove palm to {action_hint} detection"
                 snap_label = "Palm Covered"
             elif not self.detection_enabled:
-                banner = "DETECTION DISABLED - Cover & uncover with palm to enable"
-                snap_label = "Detection Disabled (Palm Toggle)"
+                if self.paused_reason == "incident":
+                    banner = "COOLDOWN (Incident Detected) - Show & remove palm to resume"
+                    snap_label = "Cooldown (Incident Detected)"
+                else:
+                    banner = "DETECTION DISABLED - Cover & uncover with palm to enable"
+                    snap_label = "Detection Disabled (Palm Toggle)"
             else:
                 banner = f"RESUMING DETECTION IN {max(0.0, self.resume_grace_until - now):.1f}s..."
                 snap_label = "Resuming detection"
@@ -1074,4 +1082,10 @@ class HerShieldDetector:
             label=label,
             frame_jpeg=raw_jpeg,
         )
+        if events:
+            # Pause detection in cooldown mode after every successful detection until palm is shown
+            self.detection_enabled = False
+            self.palm_cooldown_active = True
+            self.paused_reason = "incident"
+            self._clear_tracking_state()
         return annotated, snapshot, events

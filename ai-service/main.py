@@ -472,6 +472,10 @@ def run_capture_loop(source: Any, source_label: str, area_preset_id: str, loop_f
                 new_h = int(frame.shape[0] * (960.0 / frame.shape[1]))
                 frame = cv2.resize(frame, (960, new_h), interpolation=cv2.INTER_AREA)
 
+            if isinstance(source, int):
+                # Mirror local webcam feed horizontally so left/right matches the user's perspective
+                frame = cv2.flip(frame, 1)
+
             consecutive_failures = 0
             inf_t0 = time.time()
             annotated, snap, events = detector.process_frame(
